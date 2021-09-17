@@ -1,11 +1,21 @@
+#!/usr/bin/env python
+
+import os
 from setuptools import setup, find_packages
+
+ROOT = os.path.dirname(os.path.abspath(__file__))
+
+VERSION = "0.0.2"
 
 setup(
     name="smartpay-sdk",
-    version="0.0.1",
-    description="Smartpay SDK Python",
+    version=VERSION,
+    author="Smartpay PTE. LTD.",
+    author_email="uxe@smartpay.co",
     url="https://github.com/smartpay-co/sdk-python",
-    author="Smartpay Solutions PTE. LTD.",
+    description="Smartpay SDK Python",
+    long_description=open(os.path.join(ROOT, "README.md")).read(),
+    long_description_content_type="text/markdown",
     license="MIT",
     classifiers=[
         "License :: OSI Approved :: MIT License",
@@ -14,5 +24,6 @@ setup(
     ],
     packages=["smartpay"],
     package_data={'': ['*.json']},
-    install_requires=["requests"],
+    install_requires=["requests==2.25.1",
+                      "jtd == 0.1.1"],
 )
