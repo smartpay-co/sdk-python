@@ -68,5 +68,5 @@ class TestBasic(unittest.TestCase):
 
         self.assertTrue(session_url.index(CHECKOUT_URL) == 0)
         self.assertTrue(session_url.index('key=%s' % (TEST_PUBLIC_KEY, )) > 0)
-        self.assertTrue(session_url.index('session=%s' %
+        self.assertTrue(session_url.index('session_id=%s' %
                         (FAKE_SESSION.get('id'),)) > 0)

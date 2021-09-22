@@ -119,7 +119,7 @@ class Smartpay:
             raise Exception('Public API Key is required.')
 
         params = {
-            'session': session.get('id'),
+            'session_id': session.get('id'),
             'key': self._public_key
         }
 
