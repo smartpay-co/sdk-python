@@ -67,41 +67,6 @@ class Smartpay:
 
         return session
 
-    def is_order_authorized(self, order_id):
-        order = self.get_order(order_id)
-
-        return order.get('status') == STATUS_SUCCEEDED
-
-    def get_order(self, order_id):
-        if not valid_order_id(order_id):
-            raise Exception('Order ID is invalid.')
-
-        return self.request('/orders/%s' % order_id)
-
-    def get_payments(self, order_id):
-        if not valid_order_id(order_id):
-            raise Exception('Order ID is invalid.')
-
-        return self.request('/orders/%s/payments' % order_id)
-
-    def get_payment(self, payment_id):
-        if not valid_payment_id(payment_id):
-            raise Exception('Payment ID is invalid.')
-
-        return self.request('/payments/%s' % payment_id)
-
-    def refund_payment(self, payload):
-        payment_id = payload.get('payment', None)
-        currency = payload.get('currency', None)
-
-        if not valid_payment_id(payment_id):
-            raise Exception('Payment ID is invalid.')
-
-        if not currency:
-            raise Exception('Currency is invalid.')
-
-        return self.request('/refunds/', POST, json=payload)
-
     def set_public_key(self, public_key):
         if not public_key:
             raise Exception('Public API Key is required.')
