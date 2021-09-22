@@ -1,16 +1,22 @@
 import requests
 from urllib.parse import urlencode
 
-from .utils import is_valid_vheckout_payload, is_valid_public_api_key, is_valid_secret_api_key, is_valid_order_id, normalize_checkout_payload
+from .utils import valid_public_api_key, valid_secret_api_key
+from .utils import valid_order_id, valid_payment_id
+from .utils import validate_checkout_session_payload, normalize_checkout_session_payload
 
 
-API_PREFIX = 'https://api.smartpay.co/checkout'
-CHECKOUT_URL = 'https://checkout.smartpay.ninja'
+API_PREFIX = 'https://api.smartpay.co/smartpayments'
+CHECKOUT_URL = 'https://checkout.smartpay.co'
 
 POST = 'POST'
 PUT = 'PUT'
+DELETE = 'DELETE'
 
 STATUS_SUCCEEDED = 'succeeded'
+STATUS_REJECTED = 'rejected'
+STATUS_FAILED = 'failed'
+STATUS_REQUIRES_AUTHORIZATION = 'requires_authorization'
 
 
 class Smartpay:
@@ -18,10 +24,10 @@ class Smartpay:
         if not secret_key:
             raise Exception('Secret API Key is required.')
 
-        if not is_valid_secret_api_key(secret_key):
+        if not valid_secret_api_key(secret_key):
             raise Exception('Secret API Key is invalid.')
 
-        if public_key and not is_valid_public_api_key(public_key):
+        if public_key and not valid_public_api_key(public_key):
             raise Exception('Public API Key is invalid.')
 
         self._secret_key = secret_key
@@ -31,20 +37,28 @@ class Smartpay:
 
     def request(self, endpoint, method='GET', payload=None):
         r = requests.request(method, '%s%s' % (self._api_prefix, endpoint), headers={
-            'Authorization': 'Bearer %s' % (self._secret_key,),
+            'Authorization': 'Basic %s' % (self._secret_key,),
         }, json=payload)
 
-        if r.status_code >= 300:
-            raise Exception(r.text)
+        if r.status_code < 200 or r.status_code > 299:
+            raise Exception('%s: %s' % (r.status_code, r.text))
 
         return r.json()
 
+    def normalize_checkout_session_payload(self, payload):
+        normalize_payload = normalize_checkout_session_payload(payload)
+        errors = validate_checkout_session_payload(normalize_payload)
+
+        if len(errors) > 0:
+            raise Exception(errors)
+
+        return normalize_payload
+
     def create_checkout_session(self, payload):
-        if not is_valid_vheckout_payload(payload):
-            raise Exception('Checkout Payload is invalid.')
+        normalized_payload = self.normalize_checkout_session_payload(payload)
 
         session = self.request(
-            '/sessions', POST, normalize_checkout_payload(payload))
+            '/checkout/sessions', POST, normalized_payload)
 
         try:
             session['checkoutURL'] = self.get_session_url(session)
@@ -58,29 +72,41 @@ class Smartpay:
 
         return order.get('status') == STATUS_SUCCEEDED
 
-    def get_orders(self):
-        return self.request('/orders')
-
     def get_order(self, order_id):
-        if not is_valid_order_id(order_id):
+        if not valid_order_id(order_id):
             raise Exception('Order ID is invalid.')
 
         return self.request('/orders/%s' % order_id)
 
-    # def captureOrder(self, order_id, amount):
-    #     return self.request('/orders/%s/capture' % order_id, POST, json={'amount': amount})
+    def get_payments(self, order_id):
+        if not valid_order_id(order_id):
+            raise Exception('Order ID is invalid.')
 
-    def refund_order(self, order_id, amount):
-        return self.request('/orders/%s/refund' % order_id, POST, json={'amount': amount})
+        return self.request('/orders/%s/payments' % order_id)
 
-    # def cancelOrder(self, order_id):
-    #     return self.request('/orders/%s/cancel' % order_id, POST)
+    def get_payment(self, payment_id):
+        if not valid_payment_id(payment_id):
+            raise Exception('Payment ID is invalid.')
+
+        return self.request('/payments/%s' % payment_id)
+
+    def refund_payment(self, payload):
+        payment_id = payload.get('payment', None)
+        currency = payload.get('currency', None)
+
+        if not valid_payment_id(payment_id):
+            raise Exception('Payment ID is invalid.')
+
+        if not currency:
+            raise Exception('Currency is invalid.')
+
+        return self.request('/refunds/', POST, json=payload)
 
     def set_public_key(self, public_key):
         if not public_key:
             raise Exception('Public API Key is required.')
 
-        if not is_valid_public_api_key(public_key):
+        if not valid_public_api_key(public_key):
             raise Exception('Public API Key is invalid.')
 
         self._public_key = public_key
