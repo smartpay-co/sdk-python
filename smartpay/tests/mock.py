@@ -6,8 +6,8 @@ from httpretty import httprettified
 
 from smartpay import Smartpay
 
-API_PREFIX = 'https://api.smartpay.re/smartpayments'
-CHECKOUT_URL = 'https://checkout.smartpay.re'
+API_PREFIX = 'https://api.smartpay.co/smartpayments'
+CHECKOUT_URL = 'https://checkout.smartpay.co'
 
 TEST_SECRET_KEY = 'sk_test_a7SlBkzf44tzdQoTwm6FrW'
 TEST_PUBLIC_KEY = 'pk_test_1m2ySnST0aYi6QM0GlKP0n'
@@ -33,7 +33,7 @@ class TestBasic(unittest.TestCase):
             "items": [
                 {
                     "name": 'レブロン 18 LOW',
-                    "price": 19250,
+                    "price": 250,
                     "currency": 'JPY',
                     "quantity": 1,
                 },
