@@ -1,11 +1,12 @@
+import os
 import json
 import unittest
 
-import httpretty
-
 from smartpay import Smartpay
 
-API_PREFIX = 'https://api.smartpay.co/smartpayments'
+DOMNAIN_NAME = os.environ.get('DOMAIN_NAME', 'api.smartpay.co')
+
+API_PREFIX = 'https://%s/smartpayments' % (DOMNAIN_NAME,)
 CHECKOUT_URL = 'https://checkout.smartpay.co'
 
 TEST_SECRET_KEY = 'sk_test_a7SlBkzf44tzdQoTwm6FrW'
@@ -37,8 +38,12 @@ class TestBasic(unittest.TestCase):
             "reference": 'order_ref_1234567',
             "successURL": 'https://smartpay.co',
             "cancelURL": 'https://smartpay.co',
+
+            "test": True,
         }
 
         session = smartpay.create_checkout_session(payload)
+
+        print(session)
 
         self.assertTrue(len(session.get('id')) > 0)
