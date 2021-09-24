@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
-VERSION = "0.0.4"
+VERSION = "0.0.6"
 
 setup(
     name="smartpay-sdk",
@@ -22,7 +22,7 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
     ],
-    packages=["smartpay"],
+    packages=["smartpay", "smartpay.schemas"],
     package_data={'': ['*.json']},
     install_requires=["requests==2.25.1",
                       "jtd == 0.1.1"],

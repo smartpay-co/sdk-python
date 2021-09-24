@@ -144,4 +144,5 @@ def normalize_checkout_session_payload(payload):
         'metadata': payload.get('metadata', None),
         'successUrl': payload.get('successURL', None),  # Temp prop
         'cancelUrl': payload.get('cancelURL', None),  # Temp prop
+        'test': payload.get('test', None),  # Temp prop
     }

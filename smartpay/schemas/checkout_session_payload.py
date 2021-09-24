@@ -126,7 +126,9 @@ checkout_session_payload_schema = jtd.Schema.from_dict({
         "items": {"elements": {"ref": "lineItem"}},
         "shipping": {"ref": "address"},
 
-        "reference": {"type": "string"}
+        "reference": {"type": "string"},
+
+        "test": {"type": "boolean"}
     },
     "additionalProperties": True
 }
