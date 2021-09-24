@@ -22,7 +22,7 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
     ],
-    packages=["smartpay"],
+    packages=["smartpay", "smartpay.schemas"],
     package_data={'': ['*.json']},
     install_requires=["requests==2.25.1",
                       "jtd == 0.1.1"],
