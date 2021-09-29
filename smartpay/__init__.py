@@ -25,10 +25,10 @@ SMARTPAY_API_PREFIX = os.environ.get('SMARTPAY_API_PREFIX', None)
 class Smartpay:
     def __init__(self, secret_key, public_key=None, api_prefix=None, checkout_url=None):
         if not secret_key:
-            raise Exception('Secret API Key is required.')
+            raise Exception('Private API Key is required.')
 
         if not valid_secret_api_key(secret_key):
-            raise Exception('Secret API Key is invalid.')
+            raise Exception('Private API Key is invalid.')
 
         if public_key and not valid_public_api_key(public_key):
             raise Exception('Public API Key is invalid.')
