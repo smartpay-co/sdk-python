@@ -1,3 +1,4 @@
+import os
 import requests
 from urllib.parse import urlencode
 
@@ -18,9 +19,11 @@ STATUS_REJECTED = 'rejected'
 STATUS_FAILED = 'failed'
 STATUS_REQUIRES_AUTHORIZATION = 'requires_authorization'
 
+SMARTPAY_API_PREFIX = os.environ.get('SMARTPAY_API_PREFIX', None)
+
 
 class Smartpay:
-    def __init__(self, secret_key, public_key=None, api_prefix=API_PREFIX, checkout_url=CHECKOUT_URL):
+    def __init__(self, secret_key, public_key=None, api_prefix=None, checkout_url=None):
         if not secret_key:
             raise Exception('Secret API Key is required.')
 
@@ -32,8 +35,8 @@ class Smartpay:
 
         self._secret_key = secret_key
         self._public_key = public_key
-        self._api_prefix = api_prefix
-        self._checkout_url = checkout_url
+        self._api_prefix = api_prefix or SMARTPAY_API_PREFIX or API_PREFIX
+        self._checkout_url = checkout_url or CHECKOUT_URL
 
     def request(self, endpoint, method='GET', payload=None):
         r = requests.request(method, '%s%s' % (self._api_prefix, endpoint), headers={
