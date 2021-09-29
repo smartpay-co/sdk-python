@@ -4,19 +4,13 @@ import unittest
 
 from smartpay import Smartpay
 
-DOMNAIN_NAME = os.environ.get('DOMAIN_NAME', 'api.smartpay.co')
-
-API_PREFIX = 'https://%s/smartpayments' % (DOMNAIN_NAME,)
-CHECKOUT_URL = 'https://checkout.smartpay.co'
-
 TEST_SECRET_KEY = 'sk_test_a7SlBkzf44tzdQoTwm6FrW'
 TEST_PUBLIC_KEY = 'pk_test_1m2ySnST0aYi6QM0GlKP0n'
 
 
 class TestBasic(unittest.TestCase):
     def test_create_checkout_session(self):
-        smartpay = Smartpay(TEST_SECRET_KEY, api_prefix=API_PREFIX,
-                            checkout_url='CHECKOUT_URL')
+        smartpay = Smartpay(TEST_SECRET_KEY)
 
         payload = {
             "items": [

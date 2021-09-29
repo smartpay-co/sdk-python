@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
-VERSION = "0.0.6"
+VERSION = "0.0.7"
 
 setup(
     name="smartpay-sdk",
