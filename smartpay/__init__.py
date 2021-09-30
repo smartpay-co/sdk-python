@@ -87,8 +87,8 @@ class Smartpay:
             raise Exception('Public API Key is required.')
 
         params = {
-            'session_id': session.get('id'),
-            'key': self._public_key
+            'session-id': session.get('id'),
+            'public-key': self._public_key
         }
 
         return '%s/login?%s' % (self._checkout_url, urlencode(params))
