@@ -10,7 +10,7 @@ VERSION = "0.1.0"
 setup(
     name="smartpay",
     version=VERSION,
-    author="Smartpay PTE. LTD.",
+    author="Smartpay Co. Ltd.",
     author_email="uxe@smartpay.co",
     url="https://github.com/smartpay-co/sdk-python",
     description="Smartpay SDK Python",
