@@ -9,7 +9,7 @@ Python v3+
 ## Installation
 
 ```shell
-pip install --save smartpay-sdk
+pip install --save smartpay
 ```
 
 ## Usage
