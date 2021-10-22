@@ -4,6 +4,7 @@ def normalize_customer_info(customer=None):
         customer = {}
 
     return {
+        'accountAge': customer.get('accountAge', None),
         'emailAddress': customer.get('emailAddress', None) or customer.get('email', None),
         'firstName': customer.get('firstName', None),
         'lastName': customer.get('lastName', None),
