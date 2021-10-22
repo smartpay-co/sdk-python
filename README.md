@@ -19,7 +19,7 @@ The package needs to be configured with your own API keys, you can find them on 
 ```python
 from smartpay import Smartpay
 
-smartpay = Smartpay('<YOUR_PRIVATE_API_KEY>', public_key='<YOUR_PUBLIC_API_KEY>');
+smartpay = Smartpay('<YOUR_SECRET_KEY>', public_key='<YOUR_PUBLIC_KEY>');
 ```
 
 If you would like to know how Smartpay payment works, please see the [payment flow](https://docs.smartpay.co/#payment_flow) for more details.
