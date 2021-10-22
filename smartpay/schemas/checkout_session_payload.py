@@ -96,6 +96,7 @@ checkout_session_payload_schema = jtd.Schema.from_dict({
         },
         "customer": {
             "optionalProperties": {
+                "accountAge": {"type": "number"},
                 "emailAddress": {"type": "string"},
                 "firstName": {"type": "string"},
                 "lastName": {"type": "string"},
