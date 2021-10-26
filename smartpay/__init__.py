@@ -7,7 +7,7 @@ from .utils import valid_order_id, valid_payment_id
 from .utils import validate_checkout_session_payload, normalize_checkout_session_payload
 
 
-API_PREFIX = 'https://api.smartpay.co'
+API_PREFIX = 'https://api.smartpay.co/v1'
 CHECKOUT_URL = 'https://checkout.smartpay.co'
 
 POST = 'POST'
@@ -61,7 +61,7 @@ class Smartpay:
         normalized_payload = self.normalize_checkout_session_payload(payload)
 
         session = self.request(
-            '/checkout/sessions', POST, normalized_payload)
+            '/checkout-sessions', POST, normalized_payload)
 
         try:
             session['checkoutURL'] = self.get_session_url(session)

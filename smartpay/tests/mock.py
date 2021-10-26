@@ -6,7 +6,7 @@ from httpretty import httprettified
 
 from smartpay import Smartpay
 
-API_PREFIX = 'https://api.smartpay.co'
+API_PREFIX = 'https://api.smartpay.co/v1'
 CHECKOUT_URL = 'https://checkout.smartpay.co'
 
 TEST_SECRET_KEY = 'sk_test_a7SlBkzf44tzdQoTwm6FrW'
@@ -22,7 +22,7 @@ class TestBasic(unittest.TestCase):
     def test_create_checkout_session(self):
         httpretty.register_uri(
             httpretty.POST,
-            "%s/checkout/sessions" % (API_PREFIX, ),
+            "%s/checkout-sessions" % (API_PREFIX, ),
             body=json.dumps(FAKE_SESSION)
         )
 
