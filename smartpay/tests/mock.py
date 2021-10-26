@@ -6,7 +6,7 @@ from httpretty import httprettified
 
 from smartpay import Smartpay
 
-API_PREFIX = 'https://api.smartpay.co/smartpayments'
+API_PREFIX = 'https://api.smartpay.co'
 CHECKOUT_URL = 'https://checkout.smartpay.co'
 
 TEST_SECRET_KEY = 'sk_test_a7SlBkzf44tzdQoTwm6FrW'

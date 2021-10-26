@@ -7,7 +7,7 @@ from .utils import valid_order_id, valid_payment_id
 from .utils import validate_checkout_session_payload, normalize_checkout_session_payload
 
 
-API_PREFIX = 'https://api.smartpay.co/smartpayments'
+API_PREFIX = 'https://api.smartpay.co'
 CHECKOUT_URL = 'https://checkout.smartpay.co'
 
 POST = 'POST'
