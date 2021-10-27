@@ -5,11 +5,13 @@ from setuptools import setup, find_packages
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
-VERSION = "0.1.6"
+meta = {}
+with open(os.path.join(ROOT, "smartpay", "version.py"), encoding="utf-8") as f:
+    exec(f.read(), meta)
 
 setup(
     name="smartpay",
-    version=VERSION,
+    version=meta["__version__"],
     author="Smartpay Co. Ltd.",
     author_email="uxe@smartpay.co",
     url="https://github.com/smartpay-co/sdk-python",
@@ -24,6 +26,5 @@ setup(
     ],
     packages=["smartpay", "smartpay.schemas"],
     package_data={'': ['*.json']},
-    install_requires=["requests==2.25.1",
-                      "jtd == 0.1.1"],
+    install_requires=["jtd==0.1.1", "requests==2.25.1"],
 )
