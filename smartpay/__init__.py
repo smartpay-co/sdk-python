@@ -6,7 +6,7 @@ from .utils import valid_public_api_key, valid_secret_api_key
 from .utils import valid_order_id, valid_payment_id
 from .utils import validate_checkout_session_payload, normalize_checkout_session_payload
 
-from version import __version__
+from .version import __version__
 
 API_PREFIX = 'https://api.smartpay.co/v1'
 CHECKOUT_URL = 'https://checkout.smartpay.co'
@@ -39,10 +39,10 @@ class Smartpay:
         self._api_prefix = api_prefix or SMARTPAY_API_PREFIX or API_PREFIX
         self._checkout_url = checkout_url or CHECKOUT_URL
 
-    def request(self, endpoint, method='GET', payload=None):
+    def request(self, endpoint, method='GET', params=None, payload=None):
         r = requests.request(method, '%s%s' % (self._api_prefix, endpoint), headers={
             'Authorization': 'Basic %s' % (self._secret_key,),
-        }, json=payload)
+        }, params=params, json=payload)
 
         if r.status_code < 200 or r.status_code > 299:
             raise Exception('%s: %s' % (r.status_code, r.text))
@@ -67,7 +67,7 @@ class Smartpay:
         }
 
         session = self.request(
-            '/checkout-sessions?%s' % (urlencode(params),), POST, normalized_payload)
+            '/checkout-sessions', POST, params, payload=normalized_payload)
 
         try:
             session['checkoutURL'] = self.get_session_url(session)
