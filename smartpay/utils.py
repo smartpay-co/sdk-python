@@ -41,29 +41,54 @@ def validate_checkout_session_payload(payload):
     return errors
 
 
+def get_currency(payload):
+    order_data = payload.get('orderData')
+    currency = order_data.get('currency', None)
+
+    if not currency:
+        lineItems = order_data.get('lineItemData', [])
+
+        if len(lineItems) > 0:
+            currency = lineItems[0]['priceData'].get('currency', None)
+
+    return currency
+
+
 def normalize_checkout_session_payload(input):
     payload = from_loose_checkout_session_payload(dict(input))
     order_data = payload.get('orderData')
+    shipping_info = order_data.get('shippingInfo', {})
+    currency = get_currency(payload)
+
+    if not currency:
+        raise Exception('Currency is not available.')
 
     if not order_data.get('currency', None):
-        lineItems = order_data.get('lineItemData', None) or []
-        if len(lineItems) > 0:
-            payload['orderData']['currency'] = lineItems[0]['priceData'].get(
-                'currency', None)
+        payload['orderData']['currency'] = currency
 
-    currency = order_data.get('currency', None)
+    if not shipping_info.get('feeCurrency'):
+        shipping_info['feeCurrency'] = currency
+
+    fee_currency = shipping_info.get('feeCurrency', None)
+    fee_amount = shipping_info.get('feeAmount', None)
+    shipping = fee_amount if fee_currency == currency and fee_amount else 0
 
     if not order_data.get('amount', None):
         def get_price(item):
             price_data = item.get('priceData')
+            item_currency = price_data.get('currency', None)
 
-            if price_data.get('currency') != currency:
+            if not item_currency:
+                price_data['currency'] = currency
+                item_currency = currency
+
+            if item_currency != currency:
                 raise Exception('Currency of all items should be the same.')
 
             return price_data.get('amount', 0)
 
         payload['orderData']['amount'] = sum(
-            list(map(get_price, order_data.get('lineItemData', []))))
+            list(map(get_price, order_data.get('lineItemData', [])))) + shipping
 
     return payload
 

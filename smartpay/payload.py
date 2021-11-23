@@ -3,7 +3,7 @@ def normalize_customer_info(customer=None):
     if customer is None:
         customer = {}
 
-    return {
+    normalized_customer = {
         'accountAge': customer.get('accountAge', None),
         'emailAddress': customer.get('emailAddress', None) or customer.get('email', None),
         'firstName': customer.get('firstName', None),
@@ -17,12 +17,14 @@ def normalize_customer_info(customer=None):
         'reference': customer.get('reference', None),
     }
 
+    return {**customer, **normalized_customer}
+
 
 def normalize_product_data(product=None):
     if product is None:
         product = {}
 
-    return {
+    normalized_product = {
         'name': product.get('name', None),
         'brand': product.get('brand', None),
         'categories': product.get('categories', None),
@@ -34,17 +36,21 @@ def normalize_product_data(product=None):
         'metadata': product.get('metadata', None),
     }
 
+    return {**product, **normalized_product}
+
 
 def normalize_price_data(price=None):
     if price is None:
         price = {}
 
-    return {
+    normalized_price = {
         'productData': normalize_product_data(price.get('productData', None) or {}),
         'amount': price.get('amount', None),
         'currency': price.get('currency', None),
         'metadata': price.get('metadata', None),
     }
+
+    return {**price, **normalized_price}
 
 
 def normalize_line_item_data(line_item=None):
@@ -54,7 +60,7 @@ def normalize_line_item_data(line_item=None):
     amount = line_item.get('amount', None)
     price = line_item.get('price', None)
 
-    return {
+    normalized_line_item = {
         'price': price if type(price) is str else None,
         'priceData': normalize_price_data(line_item.get('priceData', None) or {
             'productData': {
@@ -79,6 +85,8 @@ def normalize_line_item_data(line_item=None):
         'metadata': line_item.get('metadata', None),
     }
 
+    return {**line_item, **normalized_line_item}
+
 
 def normalize_line_item_data_list(items=None):
     if items is None:
@@ -91,7 +99,7 @@ def normalize_order_data(order):
     if order is None:
         order = {}
 
-    return {
+    normalized_order = {
         'amount': order.get('amount', None),
         'currency': order.get('currency', None),
         'captureMethod': order.get('captureMethod', None),
@@ -101,12 +109,14 @@ def normalize_order_data(order):
         'lineItemData': normalize_line_item_data_list(order.get('lineItemData', None) or order.get('items', None)),
     }
 
+    return {**order, **normalized_order}
+
 
 def normalize_shipping(shipping):
     if shipping is None:
         shipping = {}
 
-    return {
+    normalized_shipping = {
         'address': shipping.get('address', None) or {
             'line1': shipping.get('line1', None),
             'line2': shipping.get('line2', None),
@@ -120,14 +130,18 @@ def normalize_shipping(shipping):
             'country': shipping.get('country', None),
         },
         'addressType': shipping.get('addressType', None),
+        'feeAmount': shipping.get('feeAmount', None),
+        'feeCurrency': shipping.get('feeCurrency', None),
     }
+
+    return {**shipping, **normalized_shipping}
 
 
 def normalize_checkout_session_payload(payload):
     if payload is None:
         payload = {}
 
-    return {
+    normalized_payload = {
         'customerInfo': normalize_customer_info(payload.get('customerInfo', None) or payload.get('customer', None)),
         'orderData': normalize_order_data(payload.get('orderData', None) or {
             'amount': payload.get('amount', None),
@@ -147,3 +161,5 @@ def normalize_checkout_session_payload(payload):
         'cancelUrl': payload.get('cancelURL', None),  # Temp prop
         'test': payload.get('test', None),  # Temp prop
     }
+
+    return {**payload, **normalized_payload}

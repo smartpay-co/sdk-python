@@ -82,7 +82,9 @@ checkout_session_payload_schema = jtd.Schema.from_dict({
                         "address": {"ref": "address"}
                     },
                     "optionalProperties": {
-                        "addressType": {"type": "string"}
+                        "addressType": {"type": "string"},
+                        "feeAmount": {"type": "uint32"},
+                        "feeCurrency": {"type": "string"}
                     },
                     "additionalProperties": True
                 }
