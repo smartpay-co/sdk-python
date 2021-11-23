@@ -1,3 +1,14 @@
+def omit(obj, omitKeys):
+    rest = obj.copy()
+
+    for key in omitKeys:
+        try:
+            del rest[key]
+        except:
+            pass
+
+    return rest
+
 
 def normalize_customer_info(customer=None):
     if customer is None:
@@ -17,7 +28,24 @@ def normalize_customer_info(customer=None):
         'reference': customer.get('reference', None),
     }
 
-    return {**customer, **normalized_customer}
+    rest = omit(customer, [
+        'accountAge',
+        'emailAddress',
+        'email',
+        'firstName',
+        'lastName',
+        'firstNameKana',
+        'lastNameKana',
+        'address',
+        'phoneNumber',
+        'phone',
+        'dateOfBirth',
+        'legalGender',
+        'gender',
+        'reference',
+    ])
+
+    return {**rest, **normalized_customer}
 
 
 def normalize_product_data(product=None):
@@ -36,7 +64,19 @@ def normalize_product_data(product=None):
         'metadata': product.get('metadata', None),
     }
 
-    return {**product, **normalized_product}
+    rest = omit(product, [
+        'name',
+        'brand',
+        'categories',
+        'description',
+        'gtin',
+        'images',
+        'reference',
+        'url',
+        'metadata',
+    ])
+
+    return {**rest, **normalized_product}
 
 
 def normalize_price_data(price=None):
@@ -50,7 +90,11 @@ def normalize_price_data(price=None):
         'metadata': price.get('metadata', None),
     }
 
-    return {**price, **normalized_price}
+    rest = omit(price, [
+        'productData', 'amount', 'currency', 'metadata'
+    ])
+
+    return {**rest, **normalized_price}
 
 
 def normalize_line_item_data(line_item=None):
@@ -85,7 +129,29 @@ def normalize_line_item_data(line_item=None):
         'metadata': line_item.get('metadata', None),
     }
 
-    return {**line_item, **normalized_line_item}
+    rest = omit(line_item, [
+        'price',
+        'priceData',
+        'quantity',
+        'name',
+        'brand',
+        'categories',
+        'gtin',
+        'images',
+        'reference',
+        'url',
+        'amount',
+        'currency',
+        'label',
+        'description',
+        'metadata',
+        'productDescription',
+        'productMetadata',
+        'priceDescription',
+        'priceMetadata',
+    ])
+
+    return {**rest, **normalized_line_item}
 
 
 def normalize_line_item_data_list(items=None):
@@ -109,7 +175,18 @@ def normalize_order_data(order):
         'lineItemData': normalize_line_item_data_list(order.get('lineItemData', None) or order.get('items', None)),
     }
 
-    return {**order, **normalized_order}
+    rest = omit(order, [
+        'amount',
+        'currency',
+        'captureMethod',
+        'confirmationMethod',
+        'coupons',
+        'shippingInfo',
+        'items',
+        'lineItemData',
+    ])
+
+    return {**rest, **normalized_order}
 
 
 def normalize_shipping(shipping):
@@ -134,7 +211,24 @@ def normalize_shipping(shipping):
         'feeCurrency': shipping.get('feeCurrency', None),
     }
 
-    return {**shipping, **normalized_shipping}
+    rest = omit(shipping, [
+        'address',
+        'addressType',
+        'line1',
+        'line2',
+        'line3',
+        'line4',
+        'line5',
+        'subLocality',
+        'locality',
+        'administrativeArea',
+        'postalCode',
+        'country',
+        'feeAmount',
+        'feeCurrency',
+    ])
+
+    return {**rest, **normalized_shipping}
 
 
 def normalize_checkout_session_payload(payload):
@@ -162,4 +256,25 @@ def normalize_checkout_session_payload(payload):
         'test': payload.get('test', None),  # Temp prop
     }
 
-    return {**payload, **normalized_payload}
+    rest = omit(payload, [
+        'amount',
+        'currency',
+        'captureMethod',
+        'confirmationMethod',
+        'coupons',
+        'lineItemData',
+        'shippingInfo',
+        'items',
+        'shipping',
+        'customerInfo',
+        'customer',
+        'orderData',
+        'reference',
+        'successURL',
+        'cancelURL',
+        'metadata',
+        'orderDescription',
+        'orderMetadata',
+    ])
+
+    return {**rest, **normalized_payload}
