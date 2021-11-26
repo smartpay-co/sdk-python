@@ -1,9 +1,20 @@
+def omit(obj, omitKeys):
+    rest = obj.copy()
+
+    for key in omitKeys:
+        try:
+            del rest[key]
+        except:
+            pass
+
+    return rest
+
 
 def normalize_customer_info(customer=None):
     if customer is None:
         customer = {}
 
-    return {
+    normalized_customer = {
         'accountAge': customer.get('accountAge', None),
         'emailAddress': customer.get('emailAddress', None) or customer.get('email', None),
         'firstName': customer.get('firstName', None),
@@ -17,12 +28,31 @@ def normalize_customer_info(customer=None):
         'reference': customer.get('reference', None),
     }
 
+    rest = omit(customer, [
+        'accountAge',
+        'emailAddress',
+        'email',
+        'firstName',
+        'lastName',
+        'firstNameKana',
+        'lastNameKana',
+        'address',
+        'phoneNumber',
+        'phone',
+        'dateOfBirth',
+        'legalGender',
+        'gender',
+        'reference',
+    ])
+
+    return {**rest, **normalized_customer}
+
 
 def normalize_product_data(product=None):
     if product is None:
         product = {}
 
-    return {
+    normalized_product = {
         'name': product.get('name', None),
         'brand': product.get('brand', None),
         'categories': product.get('categories', None),
@@ -34,17 +64,37 @@ def normalize_product_data(product=None):
         'metadata': product.get('metadata', None),
     }
 
+    rest = omit(product, [
+        'name',
+        'brand',
+        'categories',
+        'description',
+        'gtin',
+        'images',
+        'reference',
+        'url',
+        'metadata',
+    ])
+
+    return {**rest, **normalized_product}
+
 
 def normalize_price_data(price=None):
     if price is None:
         price = {}
 
-    return {
+    normalized_price = {
         'productData': normalize_product_data(price.get('productData', None) or {}),
         'amount': price.get('amount', None),
         'currency': price.get('currency', None),
         'metadata': price.get('metadata', None),
     }
+
+    rest = omit(price, [
+        'productData', 'amount', 'currency', 'metadata'
+    ])
+
+    return {**rest, **normalized_price}
 
 
 def normalize_line_item_data(line_item=None):
@@ -54,7 +104,7 @@ def normalize_line_item_data(line_item=None):
     amount = line_item.get('amount', None)
     price = line_item.get('price', None)
 
-    return {
+    normalized_line_item = {
         'price': price if type(price) is str else None,
         'priceData': normalize_price_data(line_item.get('priceData', None) or {
             'productData': {
@@ -79,6 +129,30 @@ def normalize_line_item_data(line_item=None):
         'metadata': line_item.get('metadata', None),
     }
 
+    rest = omit(line_item, [
+        'price',
+        'priceData',
+        'quantity',
+        'name',
+        'brand',
+        'categories',
+        'gtin',
+        'images',
+        'reference',
+        'url',
+        'amount',
+        'currency',
+        'label',
+        'description',
+        'metadata',
+        'productDescription',
+        'productMetadata',
+        'priceDescription',
+        'priceMetadata',
+    ])
+
+    return {**rest, **normalized_line_item}
+
 
 def normalize_line_item_data_list(items=None):
     if items is None:
@@ -91,7 +165,7 @@ def normalize_order_data(order):
     if order is None:
         order = {}
 
-    return {
+    normalized_order = {
         'amount': order.get('amount', None),
         'currency': order.get('currency', None),
         'captureMethod': order.get('captureMethod', None),
@@ -101,12 +175,25 @@ def normalize_order_data(order):
         'lineItemData': normalize_line_item_data_list(order.get('lineItemData', None) or order.get('items', None)),
     }
 
+    rest = omit(order, [
+        'amount',
+        'currency',
+        'captureMethod',
+        'confirmationMethod',
+        'coupons',
+        'shippingInfo',
+        'items',
+        'lineItemData',
+    ])
+
+    return {**rest, **normalized_order}
+
 
 def normalize_shipping(shipping):
     if shipping is None:
         shipping = {}
 
-    return {
+    normalized_shipping = {
         'address': shipping.get('address', None) or {
             'line1': shipping.get('line1', None),
             'line2': shipping.get('line2', None),
@@ -120,14 +207,35 @@ def normalize_shipping(shipping):
             'country': shipping.get('country', None),
         },
         'addressType': shipping.get('addressType', None),
+        'feeAmount': shipping.get('feeAmount', None),
+        'feeCurrency': shipping.get('feeCurrency', None),
     }
+
+    rest = omit(shipping, [
+        'address',
+        'addressType',
+        'line1',
+        'line2',
+        'line3',
+        'line4',
+        'line5',
+        'subLocality',
+        'locality',
+        'administrativeArea',
+        'postalCode',
+        'country',
+        'feeAmount',
+        'feeCurrency',
+    ])
+
+    return {**rest, **normalized_shipping}
 
 
 def normalize_checkout_session_payload(payload):
     if payload is None:
         payload = {}
 
-    return {
+    normalized_payload = {
         'customerInfo': normalize_customer_info(payload.get('customerInfo', None) or payload.get('customer', None)),
         'orderData': normalize_order_data(payload.get('orderData', None) or {
             'amount': payload.get('amount', None),
@@ -147,3 +255,26 @@ def normalize_checkout_session_payload(payload):
         'cancelUrl': payload.get('cancelURL', None),  # Temp prop
         'test': payload.get('test', None),  # Temp prop
     }
+
+    rest = omit(payload, [
+        'amount',
+        'currency',
+        'captureMethod',
+        'confirmationMethod',
+        'coupons',
+        'lineItemData',
+        'shippingInfo',
+        'items',
+        'shipping',
+        'customerInfo',
+        'customer',
+        'orderData',
+        'reference',
+        'successURL',
+        'cancelURL',
+        'metadata',
+        'orderDescription',
+        'orderMetadata',
+    ])
+
+    return {**rest, **normalized_payload}
