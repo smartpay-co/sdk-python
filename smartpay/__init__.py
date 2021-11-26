@@ -20,9 +20,9 @@ STATUS_REJECTED = 'rejected'
 STATUS_FAILED = 'failed'
 STATUS_REQUIRES_AUTHORIZATION = 'requires_authorization'
 
-api_prefix_candidate = os.environ.get('SMARTPAY_API_PREFIX', None);
+api_prefix_candidate = os.environ.get('SMARTPAY_API_PREFIX', None)
 
-SMARTPAY_API_PREFIX = api_prefix_candidate if 'api.smartpay' in api_prefix_candidate else None
+SMARTPAY_API_PREFIX = api_prefix_candidate if api_prefix_candidate and 'api.smartpay' in api_prefix_candidate else None
 
 
 class Smartpay:
