@@ -235,6 +235,13 @@ def normalize_checkout_session_payload(payload):
     if payload is None:
         payload = {}
 
+    promotionCode = payload.get('promotionCode', None)
+
+    parsedMetadata = payload.get('metadata', {})
+
+    if promotionCode:
+        parsedMetadata['__promotion_code__'] = promotionCode
+
     normalized_payload = {
         'customerInfo': normalize_customer_info(payload.get('customerInfo', None) or payload.get('customer', None)),
         'orderData': normalize_order_data(payload.get('orderData', None) or {
@@ -250,7 +257,7 @@ def normalize_checkout_session_payload(payload):
             'metadata': payload.get('orderMetadata', None),
         }),
         'reference': payload.get('reference', None),
-        'metadata': payload.get('metadata', None),
+        'metadata': parsedMetadata,
         'successUrl': payload.get('successURL', None),  # Temp prop
         'cancelUrl': payload.get('cancelURL', None),  # Temp prop
         'test': payload.get('test', None),  # Temp prop

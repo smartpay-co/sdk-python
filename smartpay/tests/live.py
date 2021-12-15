@@ -12,6 +12,8 @@ class TestBasic(unittest.TestCase):
     def test_create_checkout_session_loose_1(self):
         smartpay = Smartpay(TEST_SECRET_KEY)
 
+        CODE = 'ZOO'
+
         payload = {
             "currency": 'JPY',
             "items": [
@@ -34,6 +36,8 @@ class TestBasic(unittest.TestCase):
             "reference": 'order_ref_1234567',
             "successURL": 'https://smartpay.co',
             "cancelURL": 'https://smartpay.co',
+
+            "promotionCode": CODE,
         }
 
         session = smartpay.create_checkout_session(payload)
@@ -41,6 +45,8 @@ class TestBasic(unittest.TestCase):
         print(session)
 
         self.assertTrue(len(session.get('id')) > 0)
+        self.assertTrue(session.get('metadata').get(
+            '__promotion_code__') == CODE)
 
     def test_create_checkout_session_loose_2(self):
         smartpay = Smartpay(TEST_SECRET_KEY)

@@ -87,16 +87,24 @@ class Smartpay:
 
         self._public_key = public_key
 
-    def get_session_url(self, session):
+    def get_session_url(self, session, options={}):
         if not session:
             raise Exception('Checkout Session is required.')
 
         if not self._public_key:
             raise Exception('Public API Key is required.')
 
+        promotionCode = session.get('metadata', {}).get(
+            '__promotion_code__', None)
+
         params = {
             'session-id': session.get('id'),
             'public-key': self._public_key
         }
 
-        return '%s/login?%s' % (self._checkout_url, urlencode(params))
+        if promotionCode:
+            params['promotion-code'] = promotionCode
+
+        checkoutURL = options.get('checkoutURL', self._checkout_url)
+
+        return '%s/login?%s' % (checkoutURL, urlencode(params))
