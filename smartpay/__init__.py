@@ -23,6 +23,7 @@ STATUS_REQUIRES_AUTHORIZATION = 'requires_authorization'
 api_prefix_candidate = os.environ.get('SMARTPAY_API_PREFIX', None)
 
 SMARTPAY_API_PREFIX = api_prefix_candidate if api_prefix_candidate and 'api.smartpay' in api_prefix_candidate else None
+SMARTPAY_CHECKOUT_URL = os.environ.get('SMARTPAY_CHECKOUT_URL', None)
 
 
 class Smartpay:
@@ -39,7 +40,7 @@ class Smartpay:
         self._secret_key = secret_key
         self._public_key = public_key
         self._api_prefix = api_prefix or SMARTPAY_API_PREFIX or API_PREFIX
-        self._checkout_url = checkout_url or CHECKOUT_URL
+        self._checkout_url = checkout_url or SMARTPAY_CHECKOUT_URL or CHECKOUT_URL
 
     def request(self, endpoint, method='GET', params=None, payload=None):
         r = requests.request(method, '%s%s' % (self._api_prefix, endpoint), headers={
