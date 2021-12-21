@@ -236,7 +236,6 @@ def normalize_checkout_session_payload(payload):
         payload = {}
 
     promotionCode = payload.get('promotionCode', None)
-
     parsedMetadata = payload.get('metadata', {})
 
     if promotionCode:

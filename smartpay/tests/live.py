@@ -1,5 +1,4 @@
-import os
-import json
+import re
 import unittest
 
 from smartpay import Smartpay
@@ -146,3 +145,16 @@ class TestBasic(unittest.TestCase):
         print(session)
 
         self.assertTrue(len(session.get('id')) > 0)
+
+
+class TestGetOrders(unittest.TestCase):
+    def test_get_orders(self):
+        order_id_pattern = re.compile("^order_(test|live)_[0-9a-zA-Z]+$")
+
+        smartpay = Smartpay(TEST_SECRET_KEY)
+
+        data = smartpay.get_orders()
+
+        self.assertTrue(len(data.get('orders')) == 20)
+        self.assertTrue(order_id_pattern.match(data.get('orders')[0].get(
+            'id')))

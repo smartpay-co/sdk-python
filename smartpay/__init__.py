@@ -11,6 +11,7 @@ from .version import __version__
 API_PREFIX = 'https://api.smartpay.co/v1'
 CHECKOUT_URL = 'https://checkout.smartpay.co'
 
+GET = 'GET'
 POST = 'POST'
 PUT = 'PUT'
 DELETE = 'DELETE'
@@ -24,6 +25,8 @@ api_prefix_candidate = os.environ.get('SMARTPAY_API_PREFIX', None)
 
 SMARTPAY_API_PREFIX = api_prefix_candidate if api_prefix_candidate and 'api.smartpay' in api_prefix_candidate else None
 SMARTPAY_CHECKOUT_URL = os.environ.get('SMARTPAY_CHECKOUT_URL', None)
+
+DEFAULT_PAGE_COUNT = 20
 
 
 class Smartpay:
@@ -78,6 +81,19 @@ class Smartpay:
             pass
 
         return session
+
+    def get_orders(self, options={}):
+        params = {
+            'dev-lang': 'python',
+            'sdk-version': __version__,
+            'page': options.get('page', 1),
+            'count': options.get('count', DEFAULT_PAGE_COUNT),
+        }
+
+        data = self.request(
+            '/orders', GET, params)
+
+        return data
 
     def set_public_key(self, public_key):
         if not public_key:
