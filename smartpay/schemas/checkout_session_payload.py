@@ -114,10 +114,7 @@ checkout_session_payload_schema = jtd.Schema.from_dict({
         }
     },
 
-    "properties": {
-        "successUrl": {"type": "string"},
-        "cancelUrl": {"type": "string"}
-    },
+    "properties": {},
     "optionalProperties": {
         "customerInfo": {"ref": "customer"},
         "customer": {"ref": "customer"},
@@ -131,7 +128,10 @@ checkout_session_payload_schema = jtd.Schema.from_dict({
 
         "reference": {"type": "string"},
 
-        "test": {"type": "boolean"}
+        "successUrl": {"type": "string"},
+        "cancelUrl": {"type": "string"},
+        "successURL": {"type": "string"},
+        "cancelURL": {"type": "string"}
     },
     "additionalProperties": True
 }

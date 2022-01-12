@@ -35,7 +35,7 @@ class TestBasic(unittest.TestCase):
                 {
                     "name": 'Item',
                     "price": 100,
-                    "quantity": 1,
+                    "quantity": 2,
                 },
             ],
 
@@ -57,6 +57,9 @@ class TestBasic(unittest.TestCase):
 
         self.assertTrue(normalizePayload.get(
             'metadata').get('__promotion_code__') == CODE1)
+
+        self.assertTrue(normalizePayload.get(
+            'orderData').get('amount') == 200)
 
     def test_get_session_url(self):
         smartpay = Smartpay(

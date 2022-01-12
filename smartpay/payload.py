@@ -258,9 +258,8 @@ def normalize_checkout_session_payload(payload):
         }),
         'reference': payload.get('reference', None),
         'metadata': parsedMetadata,
-        'successUrl': payload.get('successUrl', None),  # Temp prop
-        'cancelUrl': payload.get('cancelUrl', None),  # Temp prop
-        'test': payload.get('test', None),  # Temp prop
+        'successUrl': payload.get('successUrl', payload.get('successURL', None)),
+        'cancelUrl': payload.get('cancelUrl', payload.get('cancelURL', None)),
     }
 
     rest = omit(payload, [
