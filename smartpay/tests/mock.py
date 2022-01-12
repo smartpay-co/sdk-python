@@ -47,8 +47,8 @@ class TestBasic(unittest.TestCase):
             },
 
             "reference": 'order_ref_1234567',
-            "successURL": 'https://smartpay.co',
-            "cancelURL": 'https://smartpay.co',
+            "successUrl": 'https://smartpay.co',
+            "cancelUrl": 'https://smartpay.co',
         }
 
         session = smartpay.create_checkout_session(payload)
