@@ -173,6 +173,9 @@ def normalize_order_data(order):
         'coupons': order.get('coupons', None),
         'shippingInfo': order.get('shippingInfo', None),
         'lineItemData': normalize_line_item_data_list(order.get('lineItemData', None) or order.get('items', None)),
+        'reference': order.get('reference', None),
+        'description': order.get('description', None),
+        'metadata': order.get('metadata', None),
     }
 
     rest = omit(order, [
@@ -184,6 +187,9 @@ def normalize_order_data(order):
         'shippingInfo',
         'items',
         'lineItemData',
+        'reference',
+        'description',
+        'metadata',
     ])
 
     return {**rest, **normalized_order}
@@ -235,13 +241,6 @@ def normalize_checkout_session_payload(payload):
     if payload is None:
         payload = {}
 
-    promotionCode = payload.get('promotionCode', None)
-
-    parsedMetadata = payload.get('metadata', {})
-
-    if promotionCode:
-        parsedMetadata['__promotion_code__'] = promotionCode
-
     normalized_payload = {
         'customerInfo': normalize_customer_info(payload.get('customerInfo', None) or payload.get('customer', None)),
         'orderData': normalize_order_data(payload.get('orderData', None) or {
@@ -253,11 +252,10 @@ def normalize_checkout_session_payload(payload):
             'shippingInfo': payload.get('shippingInfo', normalize_shipping(payload.get('shipping', None))),
             'items': payload.get('items', None),
             'lineItemData': payload.get('lineItemData', None),
-            'description': payload.get('orderDescription', None),
-            'metadata': payload.get('orderMetadata', None),
+            'reference': payload.get('reference', None),
+            'description': payload.get('description', None),
+            'metadata': payload.get('metadata', None),
         }),
-        'reference': payload.get('reference', None),
-        'metadata': parsedMetadata,
         'successUrl': payload.get('successUrl', payload.get('successURL', None)),
         'cancelUrl': payload.get('cancelUrl', payload.get('cancelURL', None)),
     }
@@ -278,9 +276,8 @@ def normalize_checkout_session_payload(payload):
         'reference',
         'successUrl',
         'cancelUrl',
+        'description',
         'metadata',
-        'orderDescription',
-        'orderMetadata',
     ])
 
     return {**rest, **normalized_payload}

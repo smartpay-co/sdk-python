@@ -87,7 +87,8 @@ checkout_session_payload_schema = jtd.Schema.from_dict({
                         "feeCurrency": {"type": "string"}
                     },
                     "additionalProperties": True
-                }
+                },
+                "reference": {"type": "string"}
             },
             "optionalProperties": {
                 "captureMethod": {"type": "string"},

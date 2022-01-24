@@ -73,7 +73,9 @@ class Smartpay:
             '/checkout-sessions', POST, params, payload=normalized_payload)
 
         try:
-            session['checkoutURL'] = self.get_session_url(session)
+            session['checkoutURL'] = self.get_session_url(session, {
+                'promotionCode': payload.get('promotionCode', None)
+            })
         except Exception:
             pass
 
@@ -95,17 +97,13 @@ class Smartpay:
         if not self._public_key:
             raise Exception('Public API Key is required.')
 
-        promotionCode = session.get('metadata', {}).get(
-            '__promotion_code__', None)
+        checkoutURL = options.get('checkoutURL', self._checkout_url)
+        promotionCode = options.get('promotionCode', None)
 
         params = {
             'session-id': session.get('id'),
-            'public-key': self._public_key
+            'public-key': self._public_key,
+            'promotion-code': promotionCode,
         }
-
-        if promotionCode:
-            params['promotion-code'] = promotionCode
-
-        checkoutURL = options.get('checkoutURL', self._checkout_url)
 
         return '%s/login?%s' % (checkoutURL, urlencode(params))

@@ -15,9 +15,6 @@ CODE = "FOO"
 
 FAKE_SESSION = {
     'id': 'cs_live_abcdef12345678',
-    'metadata': {
-        '__promotion_code__': CODE
-    }
 }
 
 
@@ -56,21 +53,19 @@ class TestBasic(unittest.TestCase):
         normalizePayload = smartpay.normalize_checkout_session_payload(payload)
 
         self.assertTrue(normalizePayload.get(
-            'metadata').get('__promotion_code__') == CODE1)
-
-        self.assertTrue(normalizePayload.get(
             'orderData').get('amount') == 200)
 
     def test_get_session_url(self):
         smartpay = Smartpay(
             TEST_SECRET_KEY, public_key=TEST_PUBLIC_KEY, checkout_url=CHECKOUT_URL)
 
-        session_url = smartpay.get_session_url(FAKE_SESSION)
+        session_url = smartpay.get_session_url(FAKE_SESSION, {
+            'promotionCode': CODE
+        })
 
         self.assertTrue(session_url.index(CHECKOUT_URL) == 0)
         self.assertTrue(session_url.index('public-key=%s' %
                         (TEST_PUBLIC_KEY, )) > 0)
         self.assertTrue(session_url.index('session-id=%s' %
                         (FAKE_SESSION.get('id'),)) > 0)
-        self.assertTrue(session_url.index('promotion-code=%s' %
-                        (FAKE_SESSION.get('metadata').get('__promotion_code__'),)) > 0)
+        self.assertTrue(session_url.index('promotion-code=%s' % CODE) > 0)

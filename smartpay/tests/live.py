@@ -10,7 +10,7 @@ TEST_PUBLIC_KEY = 'pk_test_7smSiNAbAwsI2HKQE9e3hA'
 
 class TestBasic(unittest.TestCase):
     def test_create_checkout_session_loose_1(self):
-        smartpay = Smartpay(TEST_SECRET_KEY)
+        smartpay = Smartpay(TEST_SECRET_KEY, public_key=TEST_PUBLIC_KEY)
 
         CODE = 'ZOO'
 
@@ -42,11 +42,8 @@ class TestBasic(unittest.TestCase):
 
         session = smartpay.create_checkout_session(payload)
 
-        print(session)
-
         self.assertTrue(len(session.get('id')) > 0)
-        self.assertTrue(session.get('metadata').get(
-            '__promotion_code__') == CODE)
+        self.assertTrue(session.get('checkoutURL').find(CODE) >= 0)
 
     def test_create_checkout_session_loose_2(self):
         smartpay = Smartpay(TEST_SECRET_KEY)
@@ -114,6 +111,8 @@ class TestBasic(unittest.TestCase):
                     "feeAmount": 100,
                     "feeCurrency": 'JPY',
                 },
+
+                "reference": 'order_ref_1234567',
             },
 
             "customerInfo": {
@@ -136,7 +135,6 @@ class TestBasic(unittest.TestCase):
                 "accountAge": 30,
             },
 
-            "reference": 'order_ref_1234567',
             "successUrl": 'https://smartpay.co',
             "cancelUrl": 'https://smartpay.co',
         }
