@@ -87,13 +87,13 @@ checkout_session_payload_schema = jtd.Schema.from_dict({
                         "feeCurrency": {"type": "string"}
                     },
                     "additionalProperties": True
-                },
-                "reference": {"type": "string"}
+                }
             },
             "optionalProperties": {
                 "captureMethod": {"type": "string"},
                 "confirmationMethod": {"type": "string"},
-                "coupons": {"elements": {"type": "string"}}
+                "coupons": {"elements": {"type": "string"}},
+                "reference": {"type": "string"}
             },
             "additionalProperties": True
         },

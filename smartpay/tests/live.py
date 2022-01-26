@@ -33,7 +33,6 @@ class TestBasic(unittest.TestCase):
                 "feeAmount": 100,
             },
 
-            "reference": 'order_ref_1234567',
             "successUrl": 'https://smartpay.co',
             "cancelUrl": 'https://smartpay.co',
 
