@@ -2,7 +2,7 @@ import re
 import jtd
 
 from .payload import normalize_checkout_session_payload as from_loose_checkout_session_payload
-from .schemas.checkout_session_payload import checkout_session_payload_schema
+from .schemas.simple_checkout_session_payload import simple_checkout_session_payload_schema
 
 public_key_pattern = re.compile("^pk_(test|live)_[0-9a-zA-Z]+$")
 secret_key_pattern = re.compile("^sk_(test|live)_[0-9a-zA-Z]+$")
@@ -33,38 +33,36 @@ def valid_payment_id(paymentId):
 
 def validate_checkout_session_payload(payload):
     errors = jtd.validate(
-        schema=checkout_session_payload_schema, instance=remove_none(payload))
+        schema=simple_checkout_session_payload_schema, instance=remove_none(payload))
 
-    if len(payload['orderData']['lineItemData']) == 0:
-        errors.append('payload.orderData.lineItemnData is required.')
+    if len(payload['items']) == 0:
+        errors.append('payload.items is required.')
 
     return errors
 
 
 def get_currency(payload):
-    order_data = payload.get('orderData')
-    currency = order_data.get('currency', None)
+    currency = payload.get('currency', None)
 
     if not currency:
-        lineItems = order_data.get('lineItemData', [])
+        items = payload.get('items', [])
 
-        if len(lineItems) > 0:
-            currency = lineItems[0]['priceData'].get('currency', None)
+        if len(items) > 0:
+            currency = items[0].get('currency', None)
 
     return currency
 
 
 def normalize_checkout_session_payload(input):
     payload = from_loose_checkout_session_payload(dict(input))
-    order_data = payload.get('orderData')
-    shipping_info = order_data.get('shippingInfo', {})
+    shipping_info = payload.get('shippingInfo', {})
     currency = get_currency(payload)
 
     if not currency:
         raise Exception('Currency is not available.')
 
-    if not order_data.get('currency', None):
-        payload['orderData']['currency'] = currency
+    if not payload.get('currency', None):
+        payload['currency'] = currency
 
     if not shipping_info.get('feeCurrency'):
         shipping_info['feeCurrency'] = currency
@@ -73,22 +71,21 @@ def normalize_checkout_session_payload(input):
     fee_amount = shipping_info.get('feeAmount', None)
     shipping = fee_amount if fee_currency == currency and fee_amount else 0
 
-    if not order_data.get('amount', None):
+    if not payload.get('amount', None):
         def get_price(item):
-            price_data = item.get('priceData')
-            item_currency = price_data.get('currency', None)
+            item_currency = item.get('currency', None)
 
             if not item_currency:
-                price_data['currency'] = currency
+                item['currency'] = currency
                 item_currency = currency
 
             if item_currency != currency:
                 raise Exception('Currency of all items should be the same.')
 
-            return price_data.get('amount', 0) * item.get('quantity', 0)
+            return item.get('amount', 0) * item.get('quantity', 0)
 
-        payload['orderData']['amount'] = sum(
-            list(map(get_price, order_data.get('lineItemData', [])))) + shipping
+        payload['amount'] = sum(
+            list(map(get_price, payload.get('items', [])))) + shipping
 
     return payload
 

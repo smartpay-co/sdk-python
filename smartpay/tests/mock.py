@@ -33,17 +33,19 @@ class TestBasic(unittest.TestCase):
             "items": [
                 {
                     "name": 'レブロン 18 LOW',
-                    "price": 250,
+                    "amount": 250,
                     "currency": 'JPY',
                     "quantity": 1,
                 },
             ],
 
-            "shipping": {
-                "line1": 'line1',
-                "locality": 'locality',
-                "postalCode": '123',
-                "country": 'JP',
+            "shippingInfo": {
+                "address": {
+                    "line1": 'line1',
+                    "locality": 'locality',
+                    "postalCode": '123',
+                    "country": 'JP',
+                }
             },
 
             "reference": 'order_ref_1234567',
