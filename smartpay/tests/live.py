@@ -19,16 +19,18 @@ class TestBasic(unittest.TestCase):
             "items": [
                 {
                     "name": 'レブロン 18 LOW',
-                    "price": 250,
+                    "amount": 250,
                     "quantity": 1,
                 },
             ],
 
-            "shipping": {
-                "line1": 'line1',
-                "locality": 'locality',
-                "postalCode": '123',
-                "country": 'JP',
+            "shippingInfo": {
+                "address": {
+                    "line1": 'line1',
+                    "locality": 'locality',
+                    "postalCode": '123',
+                    "country": 'JP',
+                },
 
                 "feeAmount": 100,
             },
@@ -51,89 +53,24 @@ class TestBasic(unittest.TestCase):
             "items": [
                 {
                     "name": 'レブロン 18 LOW',
-                    "price": 250,
+                    "amount": 250,
                     "currency": 'JPY',
                     "quantity": 1,
                 },
             ],
 
-            "shipping": {
-                "line1": 'line1',
-                "locality": 'locality',
-                "postalCode": '123',
-                "country": 'JP',
+            "shippingInfo": {
+                "address": {
+                    "line1": 'line1',
+                    "locality": 'locality',
+                    "postalCode": '123',
+                    "country": 'JP',
+                },
 
                 "feeAmount": 100,
             },
 
             "reference": 'order_ref_1234567',
-            "successUrl": 'https://smartpay.co',
-            "cancelUrl": 'https://smartpay.co',
-        }
-
-        session = smartpay.create_checkout_session(payload)
-
-        print(session)
-
-        self.assertTrue(len(session.get('id')) > 0)
-
-    def test_create_checkout_session_strict(self):
-        smartpay = Smartpay(TEST_SECRET_KEY)
-
-        payload = {
-            "orderData": {
-                "currency": 'JPY',
-
-                "lineItemData": [
-                    {
-                        "priceData": {
-                            "productData": {
-                                "name": 'ナイキ エア ズーム テンポ ...',
-                                "description": 'メンズ ランニングシューズ',
-                                "images": ['https://i.ibb.co/vJRf12N/Item-image.png'],
-                            },
-                            "amount": 100,
-                            "currency": 'JPY',
-                        },
-                        "quantity": 1,
-                    },
-                ],
-
-                "shippingInfo": {
-                    "address": {
-                        "line1": 'line1',
-                        "locality": 'locality',
-                        "postalCode": '123',
-                        "country": 'JP',
-                    },
-
-                    "feeAmount": 100,
-                    "feeCurrency": 'JPY',
-                },
-
-                "reference": 'order_ref_1234567',
-            },
-
-            "customerInfo": {
-                "emailAddress": 'john@smartpay.co',
-                "firstName": 'John',
-                "lastName": 'Doe',
-                "firstNameKana": 'ジョン',
-                "lastNameKana": 'ドエ',
-                "phoneNumber": '+818000000000',
-                "dateOfBirth": '2000-01-01',
-                "legalGender": 'male',
-                "address": {
-                    "line1": 'line1',
-                    "line2": 'line2',
-                    "locality": '世田谷区',
-                    "administrativeArea": '東京都',
-                    "postalCode": '155-0031',
-                    "country": 'JP',
-                },
-                "accountAge": 30,
-            },
-
             "successUrl": 'https://smartpay.co',
             "cancelUrl": 'https://smartpay.co',
         }

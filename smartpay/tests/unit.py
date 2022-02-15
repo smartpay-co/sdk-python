@@ -1,8 +1,6 @@
 import json
 import unittest
 
-import httpretty
-
 from smartpay import Smartpay
 
 API_PREFIX = 'https://api.smartpay.co/checkout'
@@ -31,16 +29,18 @@ class TestBasic(unittest.TestCase):
             "items": [
                 {
                     "name": 'Item',
-                    "price": 100,
+                    "amount": 100,
                     "quantity": 2,
                 },
             ],
 
-            "shipping": {
-                "line1": 'line1',
-                "locality": 'locality',
-                "postalCode": '123',
-                "country": 'JP',
+            "shippingInfo": {
+                "address": {
+                    "line1": 'line1',
+                    "locality": 'locality',
+                    "postalCode": '123',
+                    "country": 'JP',
+                }
             },
 
             "reference": 'order_ref_1234567',
@@ -52,8 +52,7 @@ class TestBasic(unittest.TestCase):
 
         normalizePayload = smartpay.normalize_checkout_session_payload(payload)
 
-        self.assertTrue(normalizePayload.get(
-            'orderData').get('amount') == 200)
+        self.assertTrue(normalizePayload.get('amount') == 200)
 
     def test_get_session_url(self):
         smartpay = Smartpay(
