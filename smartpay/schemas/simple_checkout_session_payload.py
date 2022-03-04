@@ -80,7 +80,6 @@ simple_checkout_session_payload_schema = jtd.Schema.from_dict({
     },
     "optionalProperties": {
         "captureMethod": {"type": "string"},
-        "confirmationMethod": {"type": "string"},
         "description": {"type": "string"},
         "reference": {"type": "string"},
 
