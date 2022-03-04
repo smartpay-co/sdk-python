@@ -1,6 +1,6 @@
 import os
 import requests
-from urllib.parse import urlencode
+from urllib.parse import urlparse, urlencode
 
 from .utils import valid_public_api_key, valid_secret_api_key
 from .utils import valid_order_id, valid_payment_id
@@ -11,6 +11,7 @@ from .version import __version__
 API_PREFIX = 'https://api.smartpay.co/v1'
 CHECKOUT_URL = 'https://checkout.smartpay.co'
 
+GET = 'GET'
 POST = 'POST'
 PUT = 'PUT'
 DELETE = 'DELETE'
@@ -27,6 +28,9 @@ SMARTPAY_CHECKOUT_URL = os.environ.get('SMARTPAY_CHECKOUT_URL', None)
 
 
 class Smartpay:
+    REJECT_REQUEST_BY_CUSTOMER = 'requested_by_customer'
+    REJECT_FRAUDULENT = 'fraudulent'
+
     def __init__(self, secret_key, public_key=None, api_prefix=None, checkout_url=None):
         if not secret_key:
             raise Exception('Secret Key is required.')
@@ -81,6 +85,88 @@ class Smartpay:
 
         return session
 
+    def get_orders(self, page_token=None, max_results=None, expand=None):
+        params = {
+            'dev-lang': 'python',
+            'sdk-version': __version__,
+            'pageToken': page_token,
+            'maxResults': max_results,
+            'expand': expand,
+        }
+
+        return self.request('/orders', GET, params)
+
+    def get_order(self, id=None, expand=None):
+        if not id:
+            raise Exception('Order Id is required.')
+
+        params = {
+            'dev-lang': 'python',
+            'sdk-version': __version__,
+            'expand': expand,
+        }
+
+        return self.request('/orders/%s' % id, GET, params)
+
+    def create_payment(self, order=None, amount=None, currency=None, description=None, metadata=None):
+        if not order:
+            raise Exception('Order Id is required.')
+
+        if not amount:
+            raise Exception('Payment Amount is required.')
+
+        if not currency:
+            raise Exception('Payment Amount Currency is required.')
+
+        params = {
+            'dev-lang': 'python',
+            'sdk-version': __version__,
+        }
+
+        payload = {
+            'order': order,
+            'amount': amount,
+            'currency': currency,
+            'description': description,
+            'metadata': metadata,
+        }
+
+        return self.request('/payments', POST, params, payload=payload)
+
+    def capture(self, **kwargs):
+        return self.create_payment(**kwargs)
+
+    def create_refund(self, payment=None, amount=None, currency=None, reason=None, description=None):
+        if not payment:
+            raise Exception('Payment Id is required.')
+
+        if not amount:
+            raise Exception('Refund Amount is required.')
+
+        if not currency:
+            raise Exception('Refund Amount Currency is required.')
+
+        if not reason:
+            raise Exception('Refund Reason is required.')
+
+        params = {
+            'dev-lang': 'python',
+            'sdk-version': __version__,
+        }
+
+        payload = {
+            'payment': payment,
+            'amount': amount,
+            'currency': currency,
+            'reason': reason,
+            'description': description,
+        }
+
+        return self.request('/refunds', POST, params, payload=payload)
+
+    def refund(self, **kwargs):
+        return self.create_refund(**kwargs)
+
     def set_public_key(self, public_key):
         if not public_key:
             raise Exception('Public API Key is required.')
@@ -94,7 +180,7 @@ class Smartpay:
         if not session:
             raise Exception('Checkout Session is required.')
 
-        checkoutURL = options.get('url', None)
+        checkoutURL = session.get('url', None)
         promotionCode = options.get('promotionCode', None)
 
         if not checkoutURL:
@@ -103,5 +189,10 @@ class Smartpay:
         params = {
             'promotion-code': promotionCode,
         }
+        qs = urlencode([(key, params[key])
+                       for key in params if params[key] is not None])
 
-        return '%s?%s' % (checkoutURL, urlencode(params))
+        if qs:
+            return '%s?%s' % (checkoutURL, qs)
+
+        return checkoutURL
