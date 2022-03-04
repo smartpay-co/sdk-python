@@ -108,7 +108,7 @@ class Smartpay:
 
         return self.request('/orders/%s' % id, GET, params)
 
-    def create_payment(self, order=None, amount=None, currency=None, description=None, metadata=None):
+    def create_payment(self, order=None, amount=None, currency=None, reference=None, description=None, metadata=None):
         if not order:
             raise Exception('Order Id is required.')
 
@@ -127,6 +127,7 @@ class Smartpay:
             'order': order,
             'amount': amount,
             'currency': currency,
+            'reference': reference,
             'description': description,
             'metadata': metadata,
         }
@@ -136,7 +137,7 @@ class Smartpay:
     def capture(self, **kwargs):
         return self.create_payment(**kwargs)
 
-    def create_refund(self, payment=None, amount=None, currency=None, reason=None, description=None):
+    def create_refund(self, payment=None, amount=None, currency=None, reason=None, reference=None, description=None, metadata=None):
         if not payment:
             raise Exception('Payment Id is required.')
 
@@ -159,7 +160,9 @@ class Smartpay:
             'amount': amount,
             'currency': currency,
             'reason': reason,
+            'reference': reference,
             'description': description,
+            'metadata': metadata,
         }
 
         return self.request('/refunds', POST, params, payload=payload)
