@@ -1,7 +1,7 @@
 import os
 import requests
-import json
 import unittest
+import warnings
 
 from smartpay import Smartpay
 
@@ -15,6 +15,9 @@ test_session_data = {}
 
 
 class TestBasic(unittest.TestCase):
+    def setUp(self):
+        warnings.simplefilter('ignore', ResourceWarning)
+
     def test_create_checkout_session_loose_1(self):
         smartpay = Smartpay(TEST_SECRET_KEY, public_key=TEST_PUBLIC_KEY)
 
@@ -134,14 +137,20 @@ class TestBasic(unittest.TestCase):
         smartpay = Smartpay(TEST_SECRET_KEY)
 
         payment1 = smartpay.create_payment(
-            order=order_id, amount=PAYMENT_AMOUNT, currency='JPY')
+            order=order_id, amount=PAYMENT_AMOUNT, currency='JPY', cancelMethod='manual')
 
         payment2 = smartpay.capture(
-            order=order_id, amount=PAYMENT_AMOUNT, currency='JPY')
+            order=order_id, amount=PAYMENT_AMOUNT + 1, currency='JPY', cancelMethod='manual')
 
         self.assertTrue(payment1.get('id'))
         self.assertTrue(payment2.get('id'))
-        self.assertTrue(payment2.get('amount') == PAYMENT_AMOUNT)
+        self.assertTrue(payment2.get('amount') == PAYMENT_AMOUNT + 1)
+
+        retrivedPayment2 = smartpay.get_payment(payment2.get('id'))
+
+        self.assertTrue(payment2.get('id') == retrivedPayment2.get('id'))
+        self.assertTrue(payment2.get('amount') ==
+                        retrivedPayment2.get('amount'))
 
     def test_create_refund(self):
         order_id = test_session_data.get(
@@ -157,8 +166,14 @@ class TestBasic(unittest.TestCase):
             payment=refundable_payment, amount=REFUND_AMOUNT, currency='JPY', reason=Smartpay.REJECT_REQUEST_BY_CUSTOMER)
 
         refund2 = smartpay.refund(
-            payment=refundable_payment, amount=REFUND_AMOUNT, currency='JPY', reason=Smartpay.REJECT_REQUEST_BY_CUSTOMER)
+            payment=refundable_payment, amount=REFUND_AMOUNT + 1, currency='JPY', reason=Smartpay.REJECT_REQUEST_BY_CUSTOMER)
 
         self.assertTrue(refund1.get('id'))
         self.assertTrue(refund2.get('id'))
-        self.assertTrue(refund2.get('amount') == REFUND_AMOUNT)
+        self.assertTrue(refund2.get('amount') == REFUND_AMOUNT + 1)
+
+        retrivedRefund2 = smartpay.get_refund(refund2.get('id'))
+
+        self.assertTrue(refund2.get('id') == retrivedRefund2.get('id'))
+        self.assertTrue(refund2.get('amount') ==
+                        retrivedRefund2.get('amount'))
