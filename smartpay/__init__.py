@@ -1,9 +1,9 @@
 import os
-import requests
 from urllib.parse import urlparse, urlencode
 
 from .utils import valid_public_api_key, valid_secret_api_key
-from .utils import valid_order_id, valid_payment_id
+from .utils import valid_order_id, valid_payment_id, valid_refund_id
+from .utils import retry_requests, nonce
 from .utils import validate_checkout_session_payload, normalize_checkout_session_payload
 
 from .version import __version__
@@ -45,13 +45,15 @@ class Smartpay:
         self._public_key = public_key
         self._api_prefix = api_prefix or SMARTPAY_API_PREFIX or API_PREFIX
         self._checkout_url = checkout_url or SMARTPAY_CHECKOUT_URL or CHECKOUT_URL
+        self.requests_session = retry_requests()
 
-    def request(self, endpoint, method='GET', params={}, payload=None):
+    def request(self, endpoint, method='GET', params={}, payload=None, idempotency_key=None):
         params['dev-lang'] = 'python'
         params['sdk-version'] = __version__
 
-        r = requests.request(method, '%s%s' % (self._api_prefix, endpoint), headers={
+        r = self.requests_session.request(method, '%s%s' % (self._api_prefix, endpoint), headers={
             'Authorization': 'Basic %s' % (self._secret_key,),
+            'Idempotency-Key': idempotency_key or nonce(),
         }, params=params, json=payload)
 
         if r.status_code < 200 or r.status_code > 299:
@@ -96,6 +98,9 @@ class Smartpay:
         if not id:
             raise Exception('Order Id is required.')
 
+        if not valid_order_id(id):
+            raise Exception('Order ID is invalid.')
+
         params = {
             'expand': expand,
         }
@@ -106,6 +111,9 @@ class Smartpay:
         if not id:
             raise Exception('Order Id is required.')
 
+        if not valid_order_id(id):
+            raise Exception('Order ID is invalid.')
+
         params = {
             'dev-lang': 'python',
             'sdk-version': __version__,
@@ -113,9 +121,12 @@ class Smartpay:
 
         return self.request('/orders/%s/cancellation' % id, PUT, params)
 
-    def create_payment(self, order=None, amount=None, currency=None, reference=None, description=None, metadata=None):
+    def create_payment(self, order=None, amount=None, currency=None, cancelMethod=None, reference=None, description=None, metadata=None):
         if not order:
             raise Exception('Order Id is required.')
+
+        if not valid_order_id(order):
+            raise Exception('Order ID is invalid.')
 
         if not amount:
             raise Exception('Payment Amount is required.')
@@ -127,6 +138,7 @@ class Smartpay:
             'order': order,
             'amount': amount,
             'currency': currency,
+            'cancelMethod': cancelMethod,
             'reference': reference,
             'description': description,
             'metadata': metadata,
@@ -141,6 +153,9 @@ class Smartpay:
         if not id:
             raise Exception('Payment Id is required.')
 
+        if not valid_payment_id(id):
+            raise Exception('Payment ID is invalid.')
+
         params = {
             'expand': expand,
         }
@@ -150,6 +165,9 @@ class Smartpay:
     def create_refund(self, payment=None, amount=None, currency=None, reason=None, reference=None, description=None, metadata=None):
         if not payment:
             raise Exception('Payment Id is required.')
+
+        if not valid_payment_id(payment):
+            raise Exception('Payment ID is invalid.')
 
         if not amount:
             raise Exception('Refund Amount is required.')
@@ -178,6 +196,9 @@ class Smartpay:
     def get_refund(self, id=None, expand=None):
         if not id:
             raise Exception('Refund Id is required.')
+
+        if not valid_refund_id(id):
+            raise Exception('Refund ID is invalid.')
 
         params = {
             'expand': expand,
