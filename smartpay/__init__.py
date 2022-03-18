@@ -46,7 +46,10 @@ class Smartpay:
         self._api_prefix = api_prefix or SMARTPAY_API_PREFIX or API_PREFIX
         self._checkout_url = checkout_url or SMARTPAY_CHECKOUT_URL or CHECKOUT_URL
 
-    def request(self, endpoint, method='GET', params=None, payload=None):
+    def request(self, endpoint, method='GET', params={}, payload=None):
+        params['dev-lang'] = 'python'
+        params['sdk-version'] = __version__
+
         r = requests.request(method, '%s%s' % (self._api_prefix, endpoint), headers={
             'Authorization': 'Basic %s' % (self._secret_key,),
         }, params=params, json=payload)
@@ -68,13 +71,8 @@ class Smartpay:
     def create_checkout_session(self, payload):
         normalized_payload = self.normalize_checkout_session_payload(payload)
 
-        params = {
-            'dev-lang': 'python',
-            'sdk-version': __version__,
-        }
-
         session = self.request(
-            '/checkout-sessions', POST, params, payload=normalized_payload)
+            '/checkout-sessions', POST,  payload=normalized_payload)
 
         try:
             session['url'] = self.get_session_url(session, {
@@ -87,8 +85,6 @@ class Smartpay:
 
     def get_orders(self, page_token=None, max_results=None, expand=None):
         params = {
-            'dev-lang': 'python',
-            'sdk-version': __version__,
             'pageToken': page_token,
             'maxResults': max_results,
             'expand': expand,
@@ -101,12 +97,21 @@ class Smartpay:
             raise Exception('Order Id is required.')
 
         params = {
-            'dev-lang': 'python',
-            'sdk-version': __version__,
             'expand': expand,
         }
 
         return self.request('/orders/%s' % id, GET, params)
+
+    def cancel_order(self, id=None):
+        if not id:
+            raise Exception('Order Id is required.')
+
+        params = {
+            'dev-lang': 'python',
+            'sdk-version': __version__,
+        }
+
+        return self.request('/orders/%s/cancellation' % id, PUT, params)
 
     def create_payment(self, order=None, amount=None, currency=None, reference=None, description=None, metadata=None):
         if not order:
@@ -118,11 +123,6 @@ class Smartpay:
         if not currency:
             raise Exception('Payment Amount Currency is required.')
 
-        params = {
-            'dev-lang': 'python',
-            'sdk-version': __version__,
-        }
-
         payload = {
             'order': order,
             'amount': amount,
@@ -132,10 +132,20 @@ class Smartpay:
             'metadata': metadata,
         }
 
-        return self.request('/payments', POST, params, payload=payload)
+        return self.request('/payments', POST, payload=payload)
 
     def capture(self, **kwargs):
         return self.create_payment(**kwargs)
+
+    def get_payment(self, id=None, expand=None):
+        if not id:
+            raise Exception('Payment Id is required.')
+
+        params = {
+            'expand': expand,
+        }
+
+        return self.request('/payments/%s' % id, GET, params)
 
     def create_refund(self, payment=None, amount=None, currency=None, reason=None, reference=None, description=None, metadata=None):
         if not payment:
@@ -150,11 +160,6 @@ class Smartpay:
         if not reason:
             raise Exception('Refund Reason is required.')
 
-        params = {
-            'dev-lang': 'python',
-            'sdk-version': __version__,
-        }
-
         payload = {
             'payment': payment,
             'amount': amount,
@@ -165,10 +170,20 @@ class Smartpay:
             'metadata': metadata,
         }
 
-        return self.request('/refunds', POST, params, payload=payload)
+        return self.request('/refunds', POST, payload=payload)
 
     def refund(self, **kwargs):
         return self.create_refund(**kwargs)
+
+    def get_refund(self, id=None, expand=None):
+        if not id:
+            raise Exception('Refund Id is required.')
+
+        params = {
+            'expand': expand,
+        }
+
+        return self.request('/refunds/%s' % id, GET, params)
 
     def set_public_key(self, public_key):
         if not public_key:
