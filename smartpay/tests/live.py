@@ -5,6 +5,8 @@ import warnings
 
 from smartpay import Smartpay
 
+unittest.TestLoader.sortTestMethodsUsing = None
+
 API_BASE = os.environ.get('API_BASE', None)
 TEST_SECRET_KEY = os.environ.get('SECRET_KEY', None)
 TEST_PUBLIC_KEY = os.environ.get('PUBLIC_KEY', None)
@@ -18,7 +20,7 @@ class TestBasic(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter('ignore', ResourceWarning)
 
-    def test_create_checkout_session_loose_1(self):
+    def test_0_create_checkout_session_loose_1(self):
         smartpay = Smartpay(TEST_SECRET_KEY, public_key=TEST_PUBLIC_KEY)
 
         CODE = 'ZOO'
@@ -59,7 +61,9 @@ class TestBasic(unittest.TestCase):
         self.assertTrue(len(session.get('id')) > 0)
         self.assertTrue(session.get('url').find(CODE) >= 0)
 
-    def test_create_checkout_session_loose_2(self):
+        print(session)
+
+    def test_0_create_checkout_session_loose_2(self):
         smartpay = Smartpay(TEST_SECRET_KEY)
 
         payload = {
@@ -83,6 +87,8 @@ class TestBasic(unittest.TestCase):
                 "feeAmount": 100,
             },
 
+            "captureMethod": 'manual',
+
             "reference": 'order_ref_1234567',
             "successUrl": 'https://smartpay.co',
             "cancelUrl": 'https://smartpay.co',
@@ -90,11 +96,11 @@ class TestBasic(unittest.TestCase):
 
         session = smartpay.create_checkout_session(payload)
 
-        print(session)
+        test_session_data['cancel_order_session'] = session
 
         self.assertTrue(len(session.get('id')) > 0)
 
-    def test_get_orders(self):
+    def test_0_get_orders(self):
         smartpay = Smartpay(TEST_SECRET_KEY)
 
         orders_collection = smartpay.get_orders(max_results=10)
@@ -115,7 +121,7 @@ class TestBasic(unittest.TestCase):
 
         self.assertTrue(order.get('id') == first_order.get('id'))
 
-    def test_create_payment(self):
+    def test_1_create_payment(self):
         order_id = test_session_data.get(
             'manual_capture_session').get('order').get('id')
         PAYMENT_AMOUNT = 50
@@ -146,13 +152,13 @@ class TestBasic(unittest.TestCase):
         self.assertTrue(payment2.get('id'))
         self.assertTrue(payment2.get('amount') == PAYMENT_AMOUNT + 1)
 
-        retrivedPayment2 = smartpay.get_payment(payment2.get('id'))
+        retrived_payment2 = smartpay.get_payment(payment2.get('id'))
 
-        self.assertTrue(payment2.get('id') == retrivedPayment2.get('id'))
+        self.assertTrue(payment2.get('id') == retrived_payment2.get('id'))
         self.assertTrue(payment2.get('amount') ==
-                        retrivedPayment2.get('amount'))
+                        retrived_payment2.get('amount'))
 
-    def test_create_refund(self):
+    def test_2_create_refund(self):
         order_id = test_session_data.get(
             'manual_capture_session').get('order').get('id')
         REFUND_AMOUNT = 1
@@ -172,8 +178,32 @@ class TestBasic(unittest.TestCase):
         self.assertTrue(refund2.get('id'))
         self.assertTrue(refund2.get('amount') == REFUND_AMOUNT + 1)
 
-        retrivedRefund2 = smartpay.get_refund(refund2.get('id'))
+        retrived_refund2 = smartpay.get_refund(refund2.get('id'))
 
-        self.assertTrue(refund2.get('id') == retrivedRefund2.get('id'))
+        self.assertTrue(refund2.get('id') == retrived_refund2.get('id'))
         self.assertTrue(refund2.get('amount') ==
-                        retrivedRefund2.get('amount'))
+                        retrived_refund2.get('amount'))
+
+    def test_3_cancel_order(self):
+        order_id = test_session_data.get(
+            'cancel_order_session').get('order').get('id')
+
+        login_response = requests.request('POST', 'https://%s/consumers/auth/login' % (API_BASE, ), json={
+            "emailAddress": TEST_USERNAME,
+            "password": TEST_PASSWORD
+        })
+        login_response_data = login_response.json()
+        access_token = login_response_data.get('accessToken', None)
+
+        r = requests.request('POST', 'https://%s/orders/%s/authorizations' % (API_BASE, order_id), headers={
+            'Authorization': 'Bearer %s' % (access_token,),
+        }, json={
+            "paymentMethod": "pm_test_visaApproved",
+            "paymentPlan": "pay_in_three"
+        })
+
+        smartpay = Smartpay(TEST_SECRET_KEY)
+
+        result = smartpay.cancel_order(order_id)
+
+        self.assertTrue(result.get('status') == 'canceled')
