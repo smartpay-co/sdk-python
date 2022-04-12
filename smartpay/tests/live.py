@@ -143,10 +143,10 @@ class TestBasic(unittest.TestCase):
         smartpay = Smartpay(TEST_SECRET_KEY)
 
         payment1 = smartpay.create_payment(
-            order=order_id, amount=PAYMENT_AMOUNT, currency='JPY', cancelMethod='manual')
+            order=order_id, amount=PAYMENT_AMOUNT, currency='JPY', cancel_remainder='manual')
 
         payment2 = smartpay.capture(
-            order=order_id, amount=PAYMENT_AMOUNT + 1, currency='JPY', cancelMethod='manual')
+            order=order_id, amount=PAYMENT_AMOUNT + 1, currency='JPY', cancel_remainder='manual')
 
         self.assertTrue(payment1.get('id'))
         self.assertTrue(payment2.get('id'))

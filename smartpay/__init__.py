@@ -121,7 +121,7 @@ class Smartpay:
 
         return self.request('/orders/%s/cancellation' % id, PUT, params)
 
-    def create_payment(self, order=None, amount=None, currency=None, cancelMethod=None, reference=None, description=None, metadata=None):
+    def create_payment(self, order=None, amount=None, currency=None, cancel_remainder=None, reference=None, description=None, metadata=None):
         if not order:
             raise Exception('Order Id is required.')
 
@@ -138,7 +138,7 @@ class Smartpay:
             'order': order,
             'amount': amount,
             'currency': currency,
-            'cancelMethod': cancelMethod,
+            'cancelRemainder': cancel_remainder,
             'reference': reference,
             'description': description,
             'metadata': metadata,
