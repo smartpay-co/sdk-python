@@ -128,7 +128,7 @@ def nonce():
 
 
 def retry_requests():
-    retries = 5
+    retries = 1
     backoff_factor = 1,
     status_forcelist = [409, 500, 501, 502, 503, 504],
 
