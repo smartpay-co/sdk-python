@@ -1,5 +1,10 @@
 import re
 import jtd
+import random
+import string
+import requests
+
+from requests.adapters import HTTPAdapter, Retry
 
 from .payload import normalize_checkout_session_payload as from_loose_checkout_session_payload
 from .schemas.simple_checkout_session_payload import simple_checkout_session_payload_schema
@@ -9,26 +14,31 @@ secret_key_pattern = re.compile("^sk_(test|live)_[0-9a-zA-Z]+$")
 checkout_id_pattern = re.compile("^checkout_(test|live)_[0-9a-zA-Z]+$")
 order_id_pattern = re.compile("^order_(test|live)_[0-9a-zA-Z]+$")
 payment_id_pattern = re.compile("^payment_(test|live)_[0-9a-zA-Z]+$")
+refund_id_pattern = re.compile("^refund_(test|live)_[0-9a-zA-Z]+$")
 
 
-def valid_public_api_key(apiKey):
-    return bool(public_key_pattern.match(apiKey))
+def valid_public_api_key(input):
+    return bool(public_key_pattern.match(input))
 
 
-def valid_secret_api_key(apiKey):
-    return bool(secret_key_pattern.match(apiKey))
+def valid_secret_api_key(input):
+    return bool(secret_key_pattern.match(input))
 
 
-def valid_checkout_id(checkoutId):
-    return bool(checkout_id_pattern.match(checkoutId))
+def valid_checkout_id(input):
+    return bool(checkout_id_pattern.match(input))
 
 
-def valid_order_id(orderId):
-    return bool(order_id_pattern.match(orderId))
+def valid_order_id(input):
+    return bool(order_id_pattern.match(input))
 
 
-def valid_payment_id(paymentId):
-    return bool(payment_id_pattern.match(paymentId))
+def valid_payment_id(input):
+    return bool(payment_id_pattern.match(input))
+
+
+def valid_refund_id(input):
+    return bool(refund_id_pattern.match(input))
 
 
 def validate_checkout_session_payload(payload):
@@ -111,3 +121,27 @@ def remove_none(obj):
                          for k, v in obj.items() if k is not None and v is not None)
     else:
         return obj
+
+
+def nonce():
+    return ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(15))
+
+
+def retry_requests():
+    retries = 1
+    backoff_factor = 1,
+    status_forcelist = [409, 500, 501, 502, 503, 504],
+
+    session = requests.Session()
+    retry = Retry(
+        total=retries,
+        read=retries,
+        connect=retries,
+        backoff_factor=backoff_factor,
+        status_forcelist=status_forcelist,
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+
+    return session
