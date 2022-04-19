@@ -70,7 +70,7 @@ class TestBasic(unittest.TestCase):
             "items": [
                 {
                     "name": 'レブロン 18 LOW',
-                    "amount": 250,
+                    "amount": 350,
                     "currency": 'JPY',
                     "quantity": 1,
                 },
@@ -124,7 +124,7 @@ class TestBasic(unittest.TestCase):
     def test_1_create_payment(self):
         order_id = test_session_data.get(
             'manual_capture_session').get('order').get('id')
-        PAYMENT_AMOUNT = 50
+        PAYMENT_AMOUNT = 150
 
         login_response = requests.request('POST', 'https://%s/consumers/auth/login' % (API_BASE, ), json={
             "emailAddress": TEST_USERNAME,
