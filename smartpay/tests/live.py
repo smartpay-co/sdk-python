@@ -100,17 +100,17 @@ class TestBasic(unittest.TestCase):
 
         self.assertTrue(len(session.get('id')) > 0)
 
-    def test_0_get_orders(self):
+    def test_0_list_orders(self):
         smartpay = Smartpay(TEST_SECRET_KEY)
 
-        orders_collection = smartpay.get_orders(max_results=10)
+        orders_collection = smartpay.list_orders(max_results=10)
 
         self.assertTrue(len(orders_collection.get('data')) > 0)
 
         next_page_token = orders_collection.get('nextPageToken')
 
         if next_page_token:
-            next_orders_collection = smartpay.get_orders(
+            next_orders_collection = smartpay.list_orders(
                 page_token=next_page_token, max_results=10)
 
             self.assertTrue(len(next_orders_collection.get('data')) > 0)

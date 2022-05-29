@@ -10,7 +10,7 @@ class OrdersMixin:
     ORDER_STATUS_FAILED = 'failed'
     ORDER_STATUS_REQUIRES_AUTHORIZATION = 'requires_authorization'
 
-    def get_orders(self, page_token=None, max_results=None, expand=None):
+    def list_orders(self, page_token=None, max_results=None, expand=None):
         params = {
             'pageToken': page_token,
             'maxResults': max_results,

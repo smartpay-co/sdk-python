@@ -1,6 +1,6 @@
 from ..utils import valid_order_id, valid_payment_id
 
-from .base import GET, POST
+from .base import GET, POST, PATCH
 
 
 class PaymentsMixin:
@@ -37,10 +37,34 @@ class PaymentsMixin:
             raise Exception('Payment Id is required.')
 
         if not valid_payment_id(id):
-            raise Exception('Payment ID is invalid.')
+            raise Exception('Payment Id is invalid.')
 
         params = {
             'expand': expand,
         }
 
         return self.request('/payments/%s' % id, GET, params)
+
+    def update_payment(self, id=None, reference=None, description=None, metadata=None):
+        if not id:
+            raise Exception('Payment Id is required.')
+
+        if not valid_payment_id(id):
+            raise Exception('Payment Id is invalid.')
+
+        params = {
+            'reference': reference,
+            'description': description,
+            'metadata': metadata,
+        }
+
+        return self.request('/payments/%s' % id, PATCH, params)
+
+    def list_payments(self, page_token=None, max_results=None, expand=None):
+        params = {
+            'pageToken': page_token,
+            'maxResults': max_results,
+            'expand': expand,
+        }
+
+        return self.request('/payments', GET, params)

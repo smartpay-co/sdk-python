@@ -1,8 +1,9 @@
 from urllib.parse import urlencode
 
+from ..utils import valid_checkout_id
 from ..utils import validate_checkout_session_payload, normalize_checkout_session_payload
 
-from .base import POST
+from .base import GET, POST
 
 
 class CheckoutSessionsMixin:
@@ -29,6 +30,28 @@ class CheckoutSessionsMixin:
             pass
 
         return session
+
+    def get_checkout_session(self, id=None, expand=None):
+        if not id:
+            raise Exception('Checkout Session Id is required.')
+
+        if not valid_checkout_id(id):
+            raise Exception('Checkout Session Id is invalid.')
+
+        params = {
+            'expand': expand,
+        }
+
+        return self.request('/checkout-sessions/%s' % id, GET, params)
+
+    def list_checkout_sessions(self, page_token=None, max_results=None, expand=None):
+        params = {
+            'pageToken': page_token,
+            'maxResults': max_results,
+            'expand': expand,
+        }
+
+        return self.request('/checkout-sessions', GET, params)
 
     def get_session_url(self, session, options={}):
         if not session:

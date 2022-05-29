@@ -1,6 +1,6 @@
 from ..utils import valid_payment_id, valid_refund_id
 
-from .base import GET, POST
+from .base import GET, POST, PATCH
 
 
 class RefundsMixin:
@@ -50,3 +50,27 @@ class RefundsMixin:
         }
 
         return self.request('/refunds/%s' % id, GET, params)
+
+    def update_refund(self, id=None, reference=None, description=None, metadata=None):
+        if not id:
+            raise Exception('Refund Id is required.')
+
+        if not valid_refund_id(id):
+            raise Exception('Refund ID is invalid.')
+
+        params = {
+            'reference': reference,
+            'description': description,
+            'metadata': metadata,
+        }
+
+        return self.request('/refunds/%s' % id, PATCH, params)
+
+    def list_refunds(self, page_token=None, max_results=None, expand=None):
+        params = {
+            'pageToken': page_token,
+            'maxResults': max_results,
+            'expand': expand,
+        }
+
+        return self.request('/refunds', GET, params)

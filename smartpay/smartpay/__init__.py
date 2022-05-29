@@ -51,3 +51,12 @@ class Smartpay(CheckoutSessionsMixin, OrdersMixin, PaymentsMixin, RefundsMixin):
             raise Exception('%s: %s' % (r.status_code, r.text))
 
         return r.json()
+
+    def set_public_key(self, public_key):
+        if not public_key:
+            raise Exception('Public API Key is required.')
+
+        if not valid_public_api_key(public_key):
+            raise Exception('Public API Key is invalid.')
+
+        self._public_key = public_key
