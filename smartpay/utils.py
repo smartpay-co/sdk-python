@@ -130,7 +130,7 @@ def nonce():
 def retry_requests():
     retries = 1
     backoff_factor = 1,
-    status_forcelist = [409, 500, 501, 502, 503, 504],
+    status_forcelist = [500, 501, 502, 503, 504],
 
     session = requests.Session()
     retry = Retry(
