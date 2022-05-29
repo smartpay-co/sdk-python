@@ -12,7 +12,8 @@ TEST_PUBLIC_KEY = 'pk_test_albwlejgsekcokfpdmva'
 CODE = "FOO"
 
 FAKE_SESSION = {
-    'id': 'cs_live_abcdef12345678',
+    'id': 'checkout_test_hm3tau0XY7r3ULm06pHtr8',
+    'url': 'https://checkout.smartpay.co/checkout_test_hm3tau0XY7r3ULm06pHtr8.1nsIwu.9tR7VVYMmLWwq77hGPuN0HbPB6TYsPKLrJbJJkcIKiR8GUY0WalxEoRtBcWF6I1WYLGit6xiAlJtyi8xrXxDfD?demo=true&promotion-code=SPRINGSALE2022&',
 }
 
 
@@ -58,13 +59,10 @@ class TestBasic(unittest.TestCase):
         smartpay = Smartpay(
             TEST_SECRET_KEY, public_key=TEST_PUBLIC_KEY, checkout_url=CHECKOUT_URL)
 
-        session_url = smartpay.get_session_url(FAKE_SESSION, {
-            'promotionCode': CODE
-        })
+        session_url = smartpay.get_session_url(FAKE_SESSION,
+                                               promotion_code=CODE)
 
         self.assertTrue(session_url.index(CHECKOUT_URL) == 0)
-        self.assertTrue(session_url.index('public-key=%s' %
-                        (TEST_PUBLIC_KEY, )) > 0)
-        self.assertTrue(session_url.index('session-id=%s' %
+        self.assertTrue(session_url.index('%s' %
                         (FAKE_SESSION.get('id'),)) > 0)
         self.assertTrue(session_url.index('promotion-code=%s' % CODE) > 0)

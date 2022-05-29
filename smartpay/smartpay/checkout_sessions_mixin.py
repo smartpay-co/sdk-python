@@ -53,23 +53,23 @@ class CheckoutSessionsMixin:
 
         return self.request('/checkout-sessions', GET, params)
 
-    def get_session_url(self, session, options={}):
+    def get_session_url(self, session, promotion_code=None, options={}):
         if not session:
             raise Exception('Checkout Session is required.')
 
-        checkoutURL = session.get('url', None)
-        promotionCode = options.get('promotionCode', None)
+        checkout_url = session.get('url', None)
+        promotion_code = promotion_code or options.get('promotionCode', None)
 
-        if not checkoutURL:
+        if not checkout_url:
             raise Exception('Checkout URL is not available.')
 
         params = {
-            'promotion-code': promotionCode,
+            'promotion-code': promotion_code,
         }
         qs = urlencode([(key, params[key])
                        for key in params if params[key] is not None])
 
         if qs:
-            return '%s?%s' % (checkoutURL, qs)
+            return '%s?%s' % (checkout_url, qs)
 
-        return checkoutURL
+        return checkout_url

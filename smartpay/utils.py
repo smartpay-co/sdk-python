@@ -15,6 +15,8 @@ checkout_id_pattern = re.compile("^checkout_(test|live)_[0-9a-zA-Z]+$")
 order_id_pattern = re.compile("^order_(test|live)_[0-9a-zA-Z]+$")
 payment_id_pattern = re.compile("^payment_(test|live)_[0-9a-zA-Z]+$")
 refund_id_pattern = re.compile("^refund_(test|live)_[0-9a-zA-Z]+$")
+webhook_endpoint_id_pattern = re.compile(
+    "^webhookendpoint_(test|live)_[0-9a-zA-Z]+$")
 
 
 def valid_public_api_key(input):
@@ -39,6 +41,10 @@ def valid_payment_id(input):
 
 def valid_refund_id(input):
     return bool(refund_id_pattern.match(input))
+
+
+def valid_webhook_endpoint_id(input):
+    return bool(webhook_endpoint_id_pattern.match(input))
 
 
 def validate_checkout_session_payload(payload):
