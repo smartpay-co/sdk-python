@@ -1,3 +1,5 @@
+import json
+
 from ..utils import valid_order_id, valid_payment_id
 
 from .base import GET, POST, PATCH
@@ -52,13 +54,13 @@ class PaymentsMixin:
         if not valid_payment_id(id):
             raise Exception('Payment Id is invalid.')
 
-        params = {
+        payload = {
             'reference': reference,
             'description': description,
             'metadata': metadata,
         }
 
-        return self.request('/payments/%s' % id, PATCH, params)
+        return self.request('/payments/%s' % id, PATCH, payload={k: v for k, v in payload.items() if v is not None})
 
     def list_payments(self, page_token=None, max_results=None, expand=None):
         params = {

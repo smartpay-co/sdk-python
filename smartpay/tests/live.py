@@ -152,11 +152,19 @@ class TestBasic(unittest.TestCase):
         self.assertTrue(payment2.get('id'))
         self.assertTrue(payment2.get('amount') == PAYMENT_AMOUNT + 1)
 
+        updated_payment2 = smartpay.update_payment(
+            id=payment2.get('id'), reference='updated')
         retrived_payment2 = smartpay.get_payment(payment2.get('id'))
 
         self.assertTrue(payment2.get('id') == retrived_payment2.get('id'))
+        self.assertTrue(payment2.get('id') == updated_payment2.get('id'))
         self.assertTrue(payment2.get('amount') ==
                         retrived_payment2.get('amount'))
+        self.assertTrue(retrived_payment2.get('reference') == 'updated')
+
+        payments_collection = smartpay.list_payments()
+
+        self.assertTrue(len(payments_collection.get('data')) > 0)
 
     def test_2_create_refund(self):
         order_id = test_session_data.get(
@@ -178,11 +186,15 @@ class TestBasic(unittest.TestCase):
         self.assertTrue(refund2.get('id'))
         self.assertTrue(refund2.get('amount') == REFUND_AMOUNT + 1)
 
+        updated_refund_2 = smartpay.update_refund(
+            refund2.get('id'), reference='updated')
         retrived_refund2 = smartpay.get_refund(refund2.get('id'))
 
+        self.assertTrue(refund2.get('id') == updated_refund_2.get('id'))
         self.assertTrue(refund2.get('id') == retrived_refund2.get('id'))
         self.assertTrue(refund2.get('amount') ==
                         retrived_refund2.get('amount'))
+        self.assertTrue(updated_refund_2.get('reference') == 'updated')
 
     def test_3_cancel_order(self):
         order_id = test_session_data.get(

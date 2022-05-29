@@ -58,13 +58,13 @@ class RefundsMixin:
         if not valid_refund_id(id):
             raise Exception('Refund ID is invalid.')
 
-        params = {
+        payload = {
             'reference': reference,
             'description': description,
             'metadata': metadata,
         }
 
-        return self.request('/refunds/%s' % id, PATCH, params)
+        return self.request('/refunds/%s' % id, PATCH, payload={k: v for k, v in payload.items() if v is not None})
 
     def list_refunds(self, page_token=None, max_results=None, expand=None):
         params = {

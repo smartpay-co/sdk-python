@@ -5,8 +5,6 @@ from .orders_mixin import OrdersMixin
 from .payments_mixin import PaymentsMixin
 from .refunds_mixin import RefundsMixin
 
-import os
-
 from ..utils import valid_public_api_key, valid_secret_api_key
 from ..utils import retry_requests, nonce
 
