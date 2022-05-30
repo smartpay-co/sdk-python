@@ -1,6 +1,12 @@
+import hmac
+import base62
+import hashlib
+
 from ..utils import valid_webhook_endpoint_id
 
 from .base import GET, POST, PATCH, DELETE
+
+BASE62 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 
 
 class WebhookEndpointsMixin:
@@ -64,3 +70,30 @@ class WebhookEndpointsMixin:
         }
 
         return self.request('/webhook-endpoints', GET, params)
+
+    def calculate_webhook_signature(self, data=None, secret=None):
+        if not data:
+            raise Exception('data is required.')
+
+        if not secret:
+            raise Exception('secret is required.')
+
+        signer = hmac.new(base62.decodebytes(secret, charset=BASE62), msg=bytes(
+            data, 'utf-8'), digestmod=hashlib.sha256)
+        calculated_signature = signer.hexdigest()
+
+        return calculated_signature
+
+    def verify_webhook_signature(self, data=None, secret=None, signature=None):
+        if not data:
+            raise Exception('data is required.')
+
+        if not secret:
+            raise Exception('secret is required.')
+
+        calculated_signature = self.calculate_webhook_signature(
+            data=data,
+            secret=secret,
+        )
+
+        return signature == calculated_signature
