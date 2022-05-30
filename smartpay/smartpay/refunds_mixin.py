@@ -43,7 +43,7 @@ class RefundsMixin:
             raise Exception('Refund Id is required.')
 
         if not valid_refund_id(id):
-            raise Exception('Refund ID is invalid.')
+            raise Exception('Refund Id is invalid.')
 
         params = {
             'expand': expand,
@@ -56,7 +56,7 @@ class RefundsMixin:
             raise Exception('Refund Id is required.')
 
         if not valid_refund_id(id):
-            raise Exception('Refund ID is invalid.')
+            raise Exception('Refund Id is invalid.')
 
         payload = {
             'reference': reference,

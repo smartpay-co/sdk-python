@@ -17,9 +17,6 @@ class WebhookEndpointsMixin:
 
         return self.request('/webhook-endpoints', POST, payload=payload)
 
-    def refund(self, **kwargs):
-        return self.create_webhook_endpoint(**kwargs)
-
     def get_webhook_endpoint(self, id=None, expand=None):
         if not id:
             raise Exception('Webhook Endpoint Id is required.')

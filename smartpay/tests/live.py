@@ -1,4 +1,5 @@
 import os
+import time
 import requests
 import unittest
 import warnings
@@ -252,3 +253,55 @@ class TestBasic(unittest.TestCase):
         )
 
         self.assertTrue(delete_result == '')
+
+    def test_5_coupon_code_cru(self):
+        smartpay = Smartpay(TEST_SECRET_KEY)
+
+        # Coupon
+        coupon = smartpay.create_coupon(
+            name='E2E Test coupon',
+            discount_type=Smartpay.COUPON_DISCOUNT_TYPE_AMOUNT,
+            discount_amount=100,
+            currency='JPY',
+        )
+
+        updated_coupon = smartpay.update_coupon(
+            id=coupon.get('id'),
+            name='updatedCoupon'
+        )
+
+        retrived_coupon = smartpay.get_coupon(
+            id=coupon.get('id')
+        )
+
+        self.assertTrue(coupon.get('id'))
+        self.assertTrue(coupon.get('id') == updated_coupon.get('id'))
+        self.assertTrue(retrived_coupon.get('name') == 'updatedCoupon')
+
+        coupons_collection = smartpay.list_coupons()
+
+        self.assertTrue(len(coupons_collection.get('data')) > 0)
+
+        # Promotion Code
+        promotion_code = smartpay.create_promotion_code(
+            coupon=updated_coupon.get('id'),
+            code='THECODE%s' % (time.time(),),
+        )
+
+        updated_promotion_code = smartpay.update_promotion_code(
+            id=promotion_code.get('id'),
+            active=False
+        )
+
+        retrived_promotion_code = smartpay.get_promotion_code(
+            id=promotion_code.get('id')
+        )
+
+        self.assertTrue(promotion_code.get('id'))
+        self.assertTrue(promotion_code.get('id') ==
+                        updated_promotion_code.get('id'))
+        self.assertTrue(retrived_promotion_code.get('active') == False)
+
+        promotion_codes_collection = smartpay.list_promotion_codes()
+
+        self.assertTrue(len(promotion_codes_collection.get('data')) > 0)
