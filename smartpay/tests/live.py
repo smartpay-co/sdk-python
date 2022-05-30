@@ -219,3 +219,36 @@ class TestBasic(unittest.TestCase):
         result = smartpay.cancel_order(order_id)
 
         self.assertTrue(result.get('status') == 'canceled')
+
+    def test_4_webhook_crud(self):
+        smartpay = Smartpay(TEST_SECRET_KEY)
+
+        webhook_endpoint = smartpay.create_webhook_endpoint(
+            url='https://smartpay.co',
+            event_subscriptions=['merchant_user.created'],
+        )
+
+        updated_webhook_endpoint = smartpay.update_webhook_endpoint(
+            id=webhook_endpoint.get('id'),
+            description='updated'
+        )
+
+        retrived_webhook_endpoint = smartpay.get_webhook_endpoint(
+            id=webhook_endpoint.get('id')
+        )
+
+        self.assertTrue(webhook_endpoint.get('id'))
+        self.assertTrue(webhook_endpoint.get('id') ==
+                        updated_webhook_endpoint.get('id'))
+        self.assertTrue(retrived_webhook_endpoint.get(
+            'description') == 'updated')
+
+        webhook_endpoints_collection = smartpay.list_webhook_endpoints()
+
+        self.assertTrue(len(webhook_endpoints_collection.get('data')) > 0)
+
+        delete_result = smartpay.delete_webhook_endpoint(
+            id=webhook_endpoint.get('id')
+        )
+
+        self.assertTrue(delete_result == '')

@@ -49,6 +49,9 @@ class Smartpay(CheckoutSessionsMixin, OrdersMixin, PaymentsMixin, RefundsMixin, 
         if r.status_code < 200 or r.status_code > 299:
             raise Exception('%s: %s' % (r.status_code, r.text))
 
+        if r.status_code == 204:
+            return r.text
+
         return r.json()
 
     def set_public_key(self, public_key):
