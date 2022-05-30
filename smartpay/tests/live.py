@@ -101,6 +101,14 @@ class TestBasic(unittest.TestCase):
 
         self.assertTrue(len(session.get('id')) > 0)
 
+        retrived_session = smartpay.get_checkout_session(id=session.get('id'))
+
+        self.assertTrue(session.get('id') == retrived_session.get('id'))
+
+        sessions_collection = smartpay.list_checkout_sessions(max_results=10)
+
+        self.assertTrue(len(sessions_collection.get('data')) > 0)
+
     def test_0_list_orders(self):
         smartpay = Smartpay(TEST_SECRET_KEY)
 
