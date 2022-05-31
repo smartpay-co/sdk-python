@@ -5,8 +5,26 @@ from ..utils import validate_checkout_session_payload, normalize_checkout_sessio
 
 from .base import GET, POST
 
+ADDRESS_TYPE_HOME = 'home'
+ADDRESS_TYPE_GIFT = 'gift'
+ADDRESS_TYPE_LOCKER = 'locker'
+ADDRESS_TYPE_OFFICE = 'office'
+ADDRESS_TYPE_STORE = 'store'
+
+CAPTURE_METHOD_AUTOMATIC = 'autommatic'
+CAPTURE_METHOD_MANUAL = 'manual'
+
 
 class CheckoutSessionsMixin:
+    ADDRESS_TYPE_HOME = ADDRESS_TYPE_HOME
+    ADDRESS_TYPE_GIFT = ADDRESS_TYPE_GIFT
+    ADDRESS_TYPE_LOCKER = ADDRESS_TYPE_LOCKER
+    ADDRESS_TYPE_OFFICE = ADDRESS_TYPE_OFFICE
+    ADDRESS_TYPE_STORE = ADDRESS_TYPE_STORE
+
+    CAPTURE_METHOD_AUTOMATIC = CAPTURE_METHOD_AUTOMATIC
+    CAPTURE_METHOD_MANUAL = CAPTURE_METHOD_MANUAL
+
     def normalize_checkout_session_payload(self, payload):
         normalize_payload = normalize_checkout_session_payload(payload)
         errors = validate_checkout_session_payload(normalize_payload)

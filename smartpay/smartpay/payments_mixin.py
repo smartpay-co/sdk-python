@@ -4,8 +4,14 @@ from ..utils import valid_order_id, valid_payment_id
 
 from .base import GET, POST, PATCH
 
+CANCEL_REMAINDER_AUTOMATIC = 'autommatic'
+CANCEL_REMAINDER_MANUAL = 'manual'
+
 
 class PaymentsMixin:
+    CANCEL_REMAINDER_AUTOMATIC = CANCEL_REMAINDER_AUTOMATIC
+    CANCEL_REMAINDER_MANUAL = CANCEL_REMAINDER_MANUAL
+
     def create_payment(self, order=None, amount=None, currency=None, cancel_remainder=None, reference=None, description=None, metadata=None):
         if not order:
             raise Exception('Order Id is required.')
