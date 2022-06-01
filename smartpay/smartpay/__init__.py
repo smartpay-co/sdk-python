@@ -19,7 +19,6 @@ CHECKOUT_URL = 'https://checkout.smartpay.co'
 api_prefix_candidate = os.environ.get('SMARTPAY_API_PREFIX', None)
 
 SMARTPAY_API_PREFIX = api_prefix_candidate if api_prefix_candidate and 'api.smartpay' in api_prefix_candidate else None
-SMARTPAY_CHECKOUT_URL = os.environ.get('SMARTPAY_CHECKOUT_URL', None)
 
 
 class Smartpay(CheckoutSessionsMixin, OrdersMixin, PaymentsMixin, RefundsMixin, WebhookEndpointsMixin, CouponsMixin, PromotionCodesMixin):
@@ -36,7 +35,6 @@ class Smartpay(CheckoutSessionsMixin, OrdersMixin, PaymentsMixin, RefundsMixin, 
         self._secret_key = secret_key
         self._public_key = public_key
         self._api_prefix = api_prefix or SMARTPAY_API_PREFIX or API_PREFIX
-        self._checkout_url = checkout_url or SMARTPAY_CHECKOUT_URL or CHECKOUT_URL
         self.requests_session = retry_requests()
 
     def request(self, endpoint, method='GET', params={}, payload=None, idempotency_key=None):
