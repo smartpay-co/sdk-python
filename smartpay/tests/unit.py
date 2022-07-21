@@ -1,4 +1,3 @@
-import json
 import unittest
 
 from smartpay import Smartpay
@@ -12,7 +11,8 @@ TEST_PUBLIC_KEY = 'pk_test_albwlejgsekcokfpdmva'
 CODE = "FOO"
 
 FAKE_SESSION = {
-    'id': 'cs_live_abcdef12345678',
+    'id': 'checkout_test_hm3tau0XY7r3ULm06pHtr8',
+    'url': 'https://checkout.smartpay.co/checkout_test_hm3tau0XY7r3ULm06pHtr8.1nsIwu.9tR7VVYMmLWwq77hGPuN0HbPB6TYsPKLrJbJJkcIKiR8GUY0WalxEoRtBcWF6I1WYLGit6xiAlJtyi8xrXxDfD?demo=true&promotion-code=SPRINGSALE2022&',
 }
 
 
@@ -58,13 +58,21 @@ class TestBasic(unittest.TestCase):
         smartpay = Smartpay(
             TEST_SECRET_KEY, public_key=TEST_PUBLIC_KEY, checkout_url=CHECKOUT_URL)
 
-        session_url = smartpay.get_session_url(FAKE_SESSION, {
-            'promotionCode': CODE
-        })
+        session_url = smartpay.get_session_url(FAKE_SESSION,
+                                               promotion_code=CODE)
 
         self.assertTrue(session_url.index(CHECKOUT_URL) == 0)
-        self.assertTrue(session_url.index('public-key=%s' %
-                        (TEST_PUBLIC_KEY, )) > 0)
-        self.assertTrue(session_url.index('session-id=%s' %
+        self.assertTrue(session_url.index('%s' %
                         (FAKE_SESSION.get('id'),)) > 0)
         self.assertTrue(session_url.index('promotion-code=%s' % CODE) > 0)
+
+    def test_verify_webhook_signature(self):
+        smartpay = Smartpay(
+            TEST_SECRET_KEY, public_key=TEST_PUBLIC_KEY, checkout_url=CHECKOUT_URL)
+
+        data = '1653028612220.{"id":"evt_test_dwPfFKu5iSEKyHR2LFj9Lx","object":"event","createdAt":1653028523052,"test":true,"eventData":{"type":"payment.created","version":"2022-02-18","data":{"id":"payment_test_35LxgmF5KM22XKG38BjpJg","object":"payment","test":true,"createdAt":1653028523020,"updatedAt":1653028523020,"amount":200,"currency":"JPY","order":"order_test_RiYq2rthzRHrkKVGeucSwn","reference":"order_ref_1234567","status":"processed","metadata":{}}}}'
+        secret = 'gybcsjixKyBW2d4z6iNPlaYzHUMtawnodwZt3W0q'
+        signature = '68007ada8485ea0ceca7c5e879ae860a50412b7af95ab8e81b32a3e13f3c0832'
+
+        self.assertTrue(smartpay.verify_webhook_signature(
+            data=data, secret=secret, signature=signature))

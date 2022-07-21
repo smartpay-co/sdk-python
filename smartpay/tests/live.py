@@ -1,4 +1,5 @@
 import os
+import time
 import requests
 import unittest
 import warnings
@@ -70,7 +71,7 @@ class TestBasic(unittest.TestCase):
             "items": [
                 {
                     "name": 'レブロン 18 LOW',
-                    "amount": 250,
+                    "amount": 350,
                     "currency": 'JPY',
                     "quantity": 1,
                 },
@@ -100,17 +101,25 @@ class TestBasic(unittest.TestCase):
 
         self.assertTrue(len(session.get('id')) > 0)
 
-    def test_0_get_orders(self):
+        retrived_session = smartpay.get_checkout_session(id=session.get('id'))
+
+        self.assertTrue(session.get('id') == retrived_session.get('id'))
+
+        sessions_collection = smartpay.list_checkout_sessions(max_results=10)
+
+        self.assertTrue(len(sessions_collection.get('data')) > 0)
+
+    def test_0_list_orders(self):
         smartpay = Smartpay(TEST_SECRET_KEY)
 
-        orders_collection = smartpay.get_orders(max_results=10)
+        orders_collection = smartpay.list_orders(max_results=10)
 
         self.assertTrue(len(orders_collection.get('data')) > 0)
 
         next_page_token = orders_collection.get('nextPageToken')
 
         if next_page_token:
-            next_orders_collection = smartpay.get_orders(
+            next_orders_collection = smartpay.list_orders(
                 page_token=next_page_token, max_results=10)
 
             self.assertTrue(len(next_orders_collection.get('data')) > 0)
@@ -124,7 +133,7 @@ class TestBasic(unittest.TestCase):
     def test_1_create_payment(self):
         order_id = test_session_data.get(
             'manual_capture_session').get('order').get('id')
-        PAYMENT_AMOUNT = 50
+        PAYMENT_AMOUNT = 150
 
         login_response = requests.request('POST', 'https://%s/consumers/auth/login' % (API_BASE, ), json={
             "emailAddress": TEST_USERNAME,
@@ -152,11 +161,19 @@ class TestBasic(unittest.TestCase):
         self.assertTrue(payment2.get('id'))
         self.assertTrue(payment2.get('amount') == PAYMENT_AMOUNT + 1)
 
+        updated_payment2 = smartpay.update_payment(
+            id=payment2.get('id'), reference='updated')
         retrived_payment2 = smartpay.get_payment(payment2.get('id'))
 
         self.assertTrue(payment2.get('id') == retrived_payment2.get('id'))
+        self.assertTrue(payment2.get('id') == updated_payment2.get('id'))
         self.assertTrue(payment2.get('amount') ==
                         retrived_payment2.get('amount'))
+        self.assertTrue(retrived_payment2.get('reference') == 'updated')
+
+        payments_collection = smartpay.list_payments()
+
+        self.assertTrue(len(payments_collection.get('data')) > 0)
 
     def test_2_create_refund(self):
         order_id = test_session_data.get(
@@ -178,11 +195,15 @@ class TestBasic(unittest.TestCase):
         self.assertTrue(refund2.get('id'))
         self.assertTrue(refund2.get('amount') == REFUND_AMOUNT + 1)
 
+        updated_refund_2 = smartpay.update_refund(
+            refund2.get('id'), reference='updated')
         retrived_refund2 = smartpay.get_refund(refund2.get('id'))
 
+        self.assertTrue(refund2.get('id') == updated_refund_2.get('id'))
         self.assertTrue(refund2.get('id') == retrived_refund2.get('id'))
         self.assertTrue(refund2.get('amount') ==
                         retrived_refund2.get('amount'))
+        self.assertTrue(updated_refund_2.get('reference') == 'updated')
 
     def test_3_cancel_order(self):
         order_id = test_session_data.get(
@@ -207,3 +228,88 @@ class TestBasic(unittest.TestCase):
         result = smartpay.cancel_order(order_id)
 
         self.assertTrue(result.get('status') == 'canceled')
+
+    def test_4_webhook_crud(self):
+        smartpay = Smartpay(TEST_SECRET_KEY)
+
+        webhook_endpoint = smartpay.create_webhook_endpoint(
+            url='https://smartpay.co',
+            event_subscriptions=['merchant_user.created'],
+        )
+
+        updated_webhook_endpoint = smartpay.update_webhook_endpoint(
+            id=webhook_endpoint.get('id'),
+            description='updated'
+        )
+
+        retrived_webhook_endpoint = smartpay.get_webhook_endpoint(
+            id=webhook_endpoint.get('id')
+        )
+
+        self.assertTrue(webhook_endpoint.get('id'))
+        self.assertTrue(webhook_endpoint.get('id') ==
+                        updated_webhook_endpoint.get('id'))
+        self.assertTrue(retrived_webhook_endpoint.get(
+            'description') == 'updated')
+
+        webhook_endpoints_collection = smartpay.list_webhook_endpoints()
+
+        self.assertTrue(len(webhook_endpoints_collection.get('data')) > 0)
+
+        delete_result = smartpay.delete_webhook_endpoint(
+            id=webhook_endpoint.get('id')
+        )
+
+        self.assertTrue(delete_result == '')
+
+    def test_5_coupon_code_cru(self):
+        smartpay = Smartpay(TEST_SECRET_KEY)
+
+        # Coupon
+        coupon = smartpay.create_coupon(
+            name='E2E Test coupon',
+            discount_type=Smartpay.COUPON_DISCOUNT_TYPE_AMOUNT,
+            discount_amount=100,
+            currency='JPY',
+        )
+
+        updated_coupon = smartpay.update_coupon(
+            id=coupon.get('id'),
+            name='updatedCoupon'
+        )
+
+        retrived_coupon = smartpay.get_coupon(
+            id=coupon.get('id')
+        )
+
+        self.assertTrue(coupon.get('id'))
+        self.assertTrue(coupon.get('id') == updated_coupon.get('id'))
+        self.assertTrue(retrived_coupon.get('name') == 'updatedCoupon')
+
+        coupons_collection = smartpay.list_coupons()
+
+        self.assertTrue(len(coupons_collection.get('data')) > 0)
+
+        # Promotion Code
+        promotion_code = smartpay.create_promotion_code(
+            coupon=updated_coupon.get('id'),
+            code='THECODE%s' % (time.time(),),
+        )
+
+        updated_promotion_code = smartpay.update_promotion_code(
+            id=promotion_code.get('id'),
+            active=False
+        )
+
+        retrived_promotion_code = smartpay.get_promotion_code(
+            id=promotion_code.get('id')
+        )
+
+        self.assertTrue(promotion_code.get('id'))
+        self.assertTrue(promotion_code.get('id') ==
+                        updated_promotion_code.get('id'))
+        self.assertTrue(retrived_promotion_code.get('active') == False)
+
+        promotion_codes_collection = smartpay.list_promotion_codes()
+
+        self.assertTrue(len(promotion_codes_collection.get('data')) > 0)
