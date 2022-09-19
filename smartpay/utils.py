@@ -110,7 +110,9 @@ def normalize_checkout_session_payload(input):
             if item_currency != currency:
                 raise Exception('Currency of all items should be the same.')
 
-            return item.get('amount', 0) * item.get('quantity', 0)
+            sign = -1 if item.get('kind', 'product') == 'discount' else 1
+
+            return item.get('amount', 0) * item.get('quantity', 1) * sign
 
         payload['amount'] = sum(
             list(map(get_price, payload.get('items', [])))) + shipping

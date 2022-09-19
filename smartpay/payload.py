@@ -45,7 +45,49 @@ def normalize_customer_info(customer=None):
     return {**rest, **normalized_customer}
 
 
-def normalize_item(item=None):
+def normalize_discount_item(item=None):
+    if item is None:
+        item = {}
+
+    normalized_item = {
+        'name': item.get('name', None),
+        'description': item.get('description', None),
+        'amount': item.get('amount', None),
+        'currency': item.get('currency', None),
+    }
+
+    rest = omit(item, [
+        'name',
+        'description',
+        'amount',
+        'currency',
+    ])
+
+    return {**rest, **normalized_item}
+
+
+def normalize_tax_item(item=None):
+    if item is None:
+        item = {}
+
+    normalized_item = {
+        'name': item.get('name', None),
+        'description': item.get('description', None),
+        'amount': item.get('amount', None),
+        'currency': item.get('currency', None),
+    }
+
+    rest = omit(item, [
+        'name',
+        'description',
+        'amount',
+        'currency',
+    ])
+
+    return {**rest, **normalized_item}
+
+
+def normalize_product_item(item=None):
     if item is None:
         item = {}
 
@@ -90,6 +132,20 @@ def normalize_item(item=None):
     ])
 
     return {**rest, **normalized_item}
+
+
+def normalize_item(item=None):
+    if item is None:
+        item = {}
+
+    kind = item.get('kind', 'product')
+
+    if kind == 'discount':
+        return normalize_discount_item(item)
+    elif kind == 'tax':
+        return normalize_tax_item(item)
+    else:
+        return normalize_product_item(item)
 
 
 def normalize_items(items=None):
