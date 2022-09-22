@@ -34,6 +34,24 @@ class TestBasic(unittest.TestCase):
                     "amount": 250,
                     "quantity": 1,
                 },
+                {
+                    "kind": 'discount',
+                    "name": 'discount',
+                    "amount": 10,
+                    "currency": 'JPY',
+                },
+                {
+                    "kind": 'discount',
+                    "name": 'discount',
+                    "amount": 10,
+                    "currency": 'JPY',
+                },
+                {
+                    "kind": 'tax',
+                    "name": 'tax',
+                    "amount": 10,
+                    "currency": 'JPY',
+                },
             ],
 
             "shippingInfo": {

@@ -37,13 +37,14 @@ simple_checkout_session_payload_schema = jtd.Schema.from_dict({
             "additionalProperties": True
         },
         "lineItem": {
-            "properties": {
+            "optionalProperties": {
+                "kind": {"type": "string"},
+
                 "name": {"type": "string"},
                 "quantity": {"type": "uint16"},
                 "amount": {"type": "uint32"},
-                "currency": {"type": "string"}
-            },
-            "optionalProperties": {
+                "currency": {"type": "string"},
+
                 "description": {"type": "string"},
                 "priceDescription": {"type": "string"},
                 "productDescription": {"type": "string"},
