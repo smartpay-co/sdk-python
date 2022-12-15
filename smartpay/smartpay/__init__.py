@@ -7,6 +7,7 @@ from .refunds_mixin import RefundsMixin
 from .webhook_endpoints_mixin import WebhookEndpointsMixin
 from .coupons_mixin import CouponsMixin
 from .promotion_codes_mixin import PromotionCodesMixin
+from .tokens_mixin import TokensMixin
 
 from ..utils import valid_public_api_key, valid_secret_api_key
 from ..utils import retry_requests, nonce
@@ -14,14 +15,13 @@ from ..utils import retry_requests, nonce
 from ..version import __version__
 
 API_PREFIX = 'https://api.smartpay.co/v1'
-CHECKOUT_URL = 'https://checkout.smartpay.co'
 
 api_prefix_candidate = os.environ.get('SMARTPAY_API_PREFIX', None)
 
 SMARTPAY_API_PREFIX = api_prefix_candidate if api_prefix_candidate and 'api.smartpay' in api_prefix_candidate else None
 
 
-class Smartpay(CheckoutSessionsMixin, OrdersMixin, PaymentsMixin, RefundsMixin, WebhookEndpointsMixin, CouponsMixin, PromotionCodesMixin):
+class Smartpay(CheckoutSessionsMixin, OrdersMixin, PaymentsMixin, RefundsMixin, WebhookEndpointsMixin, CouponsMixin, PromotionCodesMixin, TokensMixin):
     def __init__(self, secret_key, public_key=None, api_prefix=None, checkout_url=None):
         if not secret_key:
             raise Exception('Secret Key is required.')

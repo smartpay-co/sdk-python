@@ -121,7 +121,7 @@ class TestBasic(unittest.TestCase):
 
         retrived_session = smartpay.get_checkout_session(id=session.get('id'))
 
-        self.assertTrue(session.get('id') == retrived_session.get('id'))
+        self.assertEqual(session.get('id'), retrived_session.get('id'))
 
         sessions_collection = smartpay.list_checkout_sessions(max_results=10)
 
@@ -146,7 +146,7 @@ class TestBasic(unittest.TestCase):
 
         order = smartpay.get_order(id=first_order.get('id'))
 
-        self.assertTrue(order.get('id') == first_order.get('id'))
+        self.assertEqual(order.get('id'), first_order.get('id'))
 
     def test_1_create_payment(self):
         order_id = test_session_data.get(
@@ -177,17 +177,17 @@ class TestBasic(unittest.TestCase):
 
         self.assertTrue(payment1.get('id'))
         self.assertTrue(payment2.get('id'))
-        self.assertTrue(payment2.get('amount') == PAYMENT_AMOUNT + 1)
+        self.assertEqual(payment2.get('amount'), PAYMENT_AMOUNT + 1)
 
         updated_payment2 = smartpay.update_payment(
             id=payment2.get('id'), reference='updated')
         retrived_payment2 = smartpay.get_payment(payment2.get('id'))
 
-        self.assertTrue(payment2.get('id') == retrived_payment2.get('id'))
-        self.assertTrue(payment2.get('id') == updated_payment2.get('id'))
-        self.assertTrue(payment2.get('amount') ==
-                        retrived_payment2.get('amount'))
-        self.assertTrue(retrived_payment2.get('reference') == 'updated')
+        self.assertEqual(payment2.get('id'), retrived_payment2.get('id'))
+        self.assertEqual(payment2.get('id'), updated_payment2.get('id'))
+        self.assertEqual(payment2.get('amount'),
+                         retrived_payment2.get('amount'))
+        self.assertEqual(retrived_payment2.get('reference'), 'updated')
 
         payments_collection = smartpay.list_payments()
 
@@ -211,17 +211,17 @@ class TestBasic(unittest.TestCase):
 
         self.assertTrue(refund1.get('id'))
         self.assertTrue(refund2.get('id'))
-        self.assertTrue(refund2.get('amount') == REFUND_AMOUNT + 1)
+        self.assertEqual(refund2.get('amount'), REFUND_AMOUNT + 1)
 
         updated_refund_2 = smartpay.update_refund(
             refund2.get('id'), reference='updated')
         retrived_refund2 = smartpay.get_refund(refund2.get('id'))
 
-        self.assertTrue(refund2.get('id') == updated_refund_2.get('id'))
-        self.assertTrue(refund2.get('id') == retrived_refund2.get('id'))
-        self.assertTrue(refund2.get('amount') ==
-                        retrived_refund2.get('amount'))
-        self.assertTrue(updated_refund_2.get('reference') == 'updated')
+        self.assertEqual(refund2.get('id'), updated_refund_2.get('id'))
+        self.assertEqual(refund2.get('id'), retrived_refund2.get('id'))
+        self.assertEqual(refund2.get('amount'),
+                         retrived_refund2.get('amount'))
+        self.assertEqual(updated_refund_2.get('reference'), 'updated')
 
     def test_3_cancel_order(self):
         order_id = test_session_data.get(
@@ -245,7 +245,7 @@ class TestBasic(unittest.TestCase):
 
         result = smartpay.cancel_order(order_id)
 
-        self.assertTrue(result.get('status') == 'canceled')
+        self.assertEqual(result.get('status'), Smartpay.ORDER_STATUS_CANCELED)
 
     def test_4_webhook_crud(self):
         smartpay = Smartpay(TEST_SECRET_KEY)
@@ -265,10 +265,10 @@ class TestBasic(unittest.TestCase):
         )
 
         self.assertTrue(webhook_endpoint.get('id'))
-        self.assertTrue(webhook_endpoint.get('id') ==
-                        updated_webhook_endpoint.get('id'))
-        self.assertTrue(retrived_webhook_endpoint.get(
-            'description') == 'updated')
+        self.assertEqual(webhook_endpoint.get('id'),
+                         updated_webhook_endpoint.get('id'))
+        self.assertEqual(retrived_webhook_endpoint.get(
+            'description'), 'updated')
 
         webhook_endpoints_collection = smartpay.list_webhook_endpoints()
 
@@ -278,7 +278,7 @@ class TestBasic(unittest.TestCase):
             id=webhook_endpoint.get('id')
         )
 
-        self.assertTrue(delete_result == '')
+        self.assertEqual(delete_result, '')
 
     def test_5_coupon_code_cru(self):
         smartpay = Smartpay(TEST_SECRET_KEY)
@@ -301,8 +301,8 @@ class TestBasic(unittest.TestCase):
         )
 
         self.assertTrue(coupon.get('id'))
-        self.assertTrue(coupon.get('id') == updated_coupon.get('id'))
-        self.assertTrue(retrived_coupon.get('name') == 'updatedCoupon')
+        self.assertEqual(coupon.get('id'), updated_coupon.get('id'))
+        self.assertEqual(retrived_coupon.get('name'), 'updatedCoupon')
 
         coupons_collection = smartpay.list_coupons()
 
@@ -324,9 +324,9 @@ class TestBasic(unittest.TestCase):
         )
 
         self.assertTrue(promotion_code.get('id'))
-        self.assertTrue(promotion_code.get('id') ==
-                        updated_promotion_code.get('id'))
-        self.assertTrue(retrived_promotion_code.get('active') == False)
+        self.assertEqual(promotion_code.get('id'),
+                         updated_promotion_code.get('id'))
+        self.assertEqual(retrived_promotion_code.get('active'), False)
 
         promotion_codes_collection = smartpay.list_promotion_codes()
 

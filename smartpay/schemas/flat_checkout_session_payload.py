@@ -1,6 +1,6 @@
 import jtd
 
-simple_checkout_session_payload_schema = jtd.Schema.from_dict({
+flat_checkout_session_payload_schema = jtd.Schema.from_dict({
     "definitions": {
         "address": {
             "properties": {
@@ -77,15 +77,16 @@ simple_checkout_session_payload_schema = jtd.Schema.from_dict({
                 "feeCurrency": {"type": "string"}
             },
             "additionalProperties": True
-        }
+        },
+
+        "successUrl": {"type": "string"},
+        "cancelUrl": {"type": "string"}
     },
     "optionalProperties": {
         "captureMethod": {"type": "string"},
         "description": {"type": "string"},
         "reference": {"type": "string"},
-
-        "successUrl": {"type": "string"},
-        "cancelUrl": {"type": "string"}
+        "locale": {"type": "string"}
     },
     "additionalProperties": True
 }
