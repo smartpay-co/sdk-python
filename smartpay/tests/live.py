@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import requests
 import unittest
@@ -331,3 +332,137 @@ class TestBasic(unittest.TestCase):
         promotion_codes_collection = smartpay.list_promotion_codes()
 
         self.assertTrue(len(promotion_codes_collection.get('data')) > 0)
+
+    def test_6_token_flow(self):
+        smartpay = Smartpay(TEST_SECRET_KEY)
+
+        # Token
+
+        payload = {
+            "mode": "token",
+            "customerInfo": {
+                "accountAge": 20,
+                "email": 'merchant-support@smartpay.co',
+                "firstName": '田中',
+                "lastName": '太郎',
+                            "firstNameKana": 'たなか',
+                            "lastNameKana": 'たろう',
+                            "address": {
+                                "line1": '3-6-7',
+                                "line2": '青山パラシオタワー 11階',
+                                "subLocality": '',
+                                "locality": '港区北青山',
+                                "administrativeArea": '東京都',
+                                "postalCode": '107-0061',
+                                "country": 'JP',
+                            },
+                "dateOfBirth": '1985-06-30',
+                "gender": 'male',
+            },
+
+            "reference": 'order_ref_1234567',
+            "successUrl": 'https://docs.smartpay.co/example-pages/checkout-successful',
+            "cancelUrl": 'https://docs.smartpay.co/example-pages/checkout-canceled',
+        }
+
+        session = smartpay.create_checkout_session(payload)
+
+        print(session)
+
+        self.assertTrue(session.get('id'))
+        self.assertTrue(session.get('token').get('id'))
+
+        token_id = session.get('token').get('id')
+
+        login_response = requests.request('POST', 'https://%s/consumers/auth/login' % (API_BASE, ), json={
+            "emailAddress": TEST_USERNAME,
+            "password": TEST_PASSWORD
+        })
+        login_response_data = login_response.json()
+        access_token = login_response_data.get('accessToken', None)
+
+        r = requests.request('PUT', 'https://%s/tokens/%s/approve' % (API_BASE, token_id), headers={
+            'Authorization': 'Bearer %s' % (access_token,),
+        })
+
+        tokens = smartpay.list_tokens()
+
+        self.assertTrue(len(tokens.get('data')) > 0)
+
+        token_a1 = smartpay.get_token(
+            id=token_id
+        )
+
+        self.assertEqual(token_a1.get('id'), token_id)
+        self.assertEqual(token_a1.get('status'), Smartpay.TOKEN_STATUS_ACTIVE)
+
+        order_payload = {
+            "token": token_id,
+            "amount": 350,
+            "currency": 'JPY',
+
+            "items": [
+                {
+                    "name": 'レブロン 18 LOW',
+                    "amount": 250,
+                    "currency": 'JPY',
+                    "quantity": 1,
+                },
+            ],
+
+            "shippingInfo": {
+                "address": {
+                    "line1": 'line1',
+                    "locality": 'locality',
+                    "postalCode": '123',
+                    "country": 'JP',
+                },
+
+                "feeAmount": 100,
+                "feeCurrency": 'JPY',
+            },
+
+            "customerInfo": {
+                "email": 'john@smartpay.co',
+                "firstName": 'John',
+                "lastName": 'Doe',
+            },
+
+            "captureMethod": 'manual',
+
+            "reference": 'order_ref_1234567',
+        }
+
+        order = smartpay.create_order(order_payload)
+
+        self.assertTrue(order.get('id'))
+        self.assertEqual(order.get('tokenId'), token_id)
+
+        smartpay.disable_token(token_id)
+
+        token_a2 = smartpay.get_token(
+            id=token_id
+        )
+
+        self.assertEqual(token_a2.get('id'), token_id)
+        self.assertEqual(token_a2.get('status'),
+                         Smartpay.TOKEN_STATUS_DISABLED)
+
+        smartpay.enable_token(token_id)
+
+        token_a3 = smartpay.get_token(
+            id=token_id
+        )
+
+        self.assertEqual(token_a3.get('id'), token_id)
+        self.assertEqual(token_a3.get('status'), Smartpay.TOKEN_STATUS_ACTIVE)
+
+        try:
+            smartpay.delete_token(token_id)
+            token_a4 = smartpay.get_token(
+                id=token_id
+            )
+            print(token_a4)
+            self.assertTrue(False)
+        except Exception as e:
+            self.assertTrue(str(e).find('"errorCode":"token.not-found"') >= 0)

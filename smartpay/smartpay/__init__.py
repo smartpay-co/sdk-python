@@ -52,12 +52,12 @@ class Smartpay(CheckoutSessionsMixin, OrdersMixin, PaymentsMixin, RefundsMixin, 
         if r.status_code == 204:
             return r.text
 
-        content_type = (r.headers['Content-Type'] or '').split(';')[0]
+        content_type = r.headers.get('Content-Type', '').split(';')[0]
 
         if content_type == 'application/json' or content_type == 'text/json':
             return r.json()
 
-        return r.text()
+        return r.text
 
     def set_public_key(self, public_key):
         if not public_key:
