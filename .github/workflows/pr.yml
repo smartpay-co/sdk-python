@@ -29,6 +29,3 @@ jobs:
 
       - name: Run Unit Test
         run: python -m unittest smartpay/tests/unit.py
-
-      - name: Run Mock Test
-        run: python -m unittest smartpay/tests/mock.py
