@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import requests
 import unittest
@@ -121,7 +122,7 @@ class TestBasic(unittest.TestCase):
 
         retrived_session = smartpay.get_checkout_session(id=session.get('id'))
 
-        self.assertTrue(session.get('id') == retrived_session.get('id'))
+        self.assertEqual(session.get('id'), retrived_session.get('id'))
 
         sessions_collection = smartpay.list_checkout_sessions(max_results=10)
 
@@ -146,7 +147,7 @@ class TestBasic(unittest.TestCase):
 
         order = smartpay.get_order(id=first_order.get('id'))
 
-        self.assertTrue(order.get('id') == first_order.get('id'))
+        self.assertEqual(order.get('id'), first_order.get('id'))
 
     def test_1_create_payment(self):
         order_id = test_session_data.get(
@@ -177,17 +178,17 @@ class TestBasic(unittest.TestCase):
 
         self.assertTrue(payment1.get('id'))
         self.assertTrue(payment2.get('id'))
-        self.assertTrue(payment2.get('amount') == PAYMENT_AMOUNT + 1)
+        self.assertEqual(payment2.get('amount'), PAYMENT_AMOUNT + 1)
 
         updated_payment2 = smartpay.update_payment(
             id=payment2.get('id'), reference='updated')
         retrived_payment2 = smartpay.get_payment(payment2.get('id'))
 
-        self.assertTrue(payment2.get('id') == retrived_payment2.get('id'))
-        self.assertTrue(payment2.get('id') == updated_payment2.get('id'))
-        self.assertTrue(payment2.get('amount') ==
-                        retrived_payment2.get('amount'))
-        self.assertTrue(retrived_payment2.get('reference') == 'updated')
+        self.assertEqual(payment2.get('id'), retrived_payment2.get('id'))
+        self.assertEqual(payment2.get('id'), updated_payment2.get('id'))
+        self.assertEqual(payment2.get('amount'),
+                         retrived_payment2.get('amount'))
+        self.assertEqual(retrived_payment2.get('reference'), 'updated')
 
         payments_collection = smartpay.list_payments()
 
@@ -211,17 +212,17 @@ class TestBasic(unittest.TestCase):
 
         self.assertTrue(refund1.get('id'))
         self.assertTrue(refund2.get('id'))
-        self.assertTrue(refund2.get('amount') == REFUND_AMOUNT + 1)
+        self.assertEqual(refund2.get('amount'), REFUND_AMOUNT + 1)
 
         updated_refund_2 = smartpay.update_refund(
             refund2.get('id'), reference='updated')
         retrived_refund2 = smartpay.get_refund(refund2.get('id'))
 
-        self.assertTrue(refund2.get('id') == updated_refund_2.get('id'))
-        self.assertTrue(refund2.get('id') == retrived_refund2.get('id'))
-        self.assertTrue(refund2.get('amount') ==
-                        retrived_refund2.get('amount'))
-        self.assertTrue(updated_refund_2.get('reference') == 'updated')
+        self.assertEqual(refund2.get('id'), updated_refund_2.get('id'))
+        self.assertEqual(refund2.get('id'), retrived_refund2.get('id'))
+        self.assertEqual(refund2.get('amount'),
+                         retrived_refund2.get('amount'))
+        self.assertEqual(updated_refund_2.get('reference'), 'updated')
 
     def test_3_cancel_order(self):
         order_id = test_session_data.get(
@@ -245,7 +246,7 @@ class TestBasic(unittest.TestCase):
 
         result = smartpay.cancel_order(order_id)
 
-        self.assertTrue(result.get('status') == 'canceled')
+        self.assertEqual(result.get('status'), Smartpay.ORDER_STATUS_CANCELED)
 
     def test_4_webhook_crud(self):
         smartpay = Smartpay(TEST_SECRET_KEY)
@@ -265,10 +266,10 @@ class TestBasic(unittest.TestCase):
         )
 
         self.assertTrue(webhook_endpoint.get('id'))
-        self.assertTrue(webhook_endpoint.get('id') ==
-                        updated_webhook_endpoint.get('id'))
-        self.assertTrue(retrived_webhook_endpoint.get(
-            'description') == 'updated')
+        self.assertEqual(webhook_endpoint.get('id'),
+                         updated_webhook_endpoint.get('id'))
+        self.assertEqual(retrived_webhook_endpoint.get(
+            'description'), 'updated')
 
         webhook_endpoints_collection = smartpay.list_webhook_endpoints()
 
@@ -278,7 +279,7 @@ class TestBasic(unittest.TestCase):
             id=webhook_endpoint.get('id')
         )
 
-        self.assertTrue(delete_result == '')
+        self.assertEqual(delete_result, '')
 
     def test_5_coupon_code_cru(self):
         smartpay = Smartpay(TEST_SECRET_KEY)
@@ -301,8 +302,8 @@ class TestBasic(unittest.TestCase):
         )
 
         self.assertTrue(coupon.get('id'))
-        self.assertTrue(coupon.get('id') == updated_coupon.get('id'))
-        self.assertTrue(retrived_coupon.get('name') == 'updatedCoupon')
+        self.assertEqual(coupon.get('id'), updated_coupon.get('id'))
+        self.assertEqual(retrived_coupon.get('name'), 'updatedCoupon')
 
         coupons_collection = smartpay.list_coupons()
 
@@ -324,10 +325,144 @@ class TestBasic(unittest.TestCase):
         )
 
         self.assertTrue(promotion_code.get('id'))
-        self.assertTrue(promotion_code.get('id') ==
-                        updated_promotion_code.get('id'))
-        self.assertTrue(retrived_promotion_code.get('active') == False)
+        self.assertEqual(promotion_code.get('id'),
+                         updated_promotion_code.get('id'))
+        self.assertEqual(retrived_promotion_code.get('active'), False)
 
         promotion_codes_collection = smartpay.list_promotion_codes()
 
         self.assertTrue(len(promotion_codes_collection.get('data')) > 0)
+
+    def test_6_token_flow(self):
+        smartpay = Smartpay(TEST_SECRET_KEY)
+
+        # Token
+
+        payload = {
+            "mode": "token",
+            "customerInfo": {
+                "accountAge": 20,
+                "email": 'merchant-support@smartpay.co',
+                "firstName": '田中',
+                "lastName": '太郎',
+                            "firstNameKana": 'たなか',
+                            "lastNameKana": 'たろう',
+                            "address": {
+                                "line1": '3-6-7',
+                                "line2": '青山パラシオタワー 11階',
+                                "subLocality": '',
+                                "locality": '港区北青山',
+                                "administrativeArea": '東京都',
+                                "postalCode": '107-0061',
+                                "country": 'JP',
+                            },
+                "dateOfBirth": '1985-06-30',
+                "gender": 'male',
+            },
+
+            "reference": 'order_ref_1234567',
+            "successUrl": 'https://docs.smartpay.co/example-pages/checkout-successful',
+            "cancelUrl": 'https://docs.smartpay.co/example-pages/checkout-canceled',
+        }
+
+        session = smartpay.create_checkout_session(payload)
+
+        print(session)
+
+        self.assertTrue(session.get('id'))
+        self.assertTrue(session.get('token').get('id'))
+
+        token_id = session.get('token').get('id')
+
+        login_response = requests.request('POST', 'https://%s/consumers/auth/login' % (API_BASE, ), json={
+            "emailAddress": TEST_USERNAME,
+            "password": TEST_PASSWORD
+        })
+        login_response_data = login_response.json()
+        access_token = login_response_data.get('accessToken', None)
+
+        r = requests.request('PUT', 'https://%s/tokens/%s/approve' % (API_BASE, token_id), headers={
+            'Authorization': 'Bearer %s' % (access_token,),
+        })
+
+        tokens = smartpay.list_tokens()
+
+        self.assertTrue(len(tokens.get('data')) > 0)
+
+        token_a1 = smartpay.get_token(
+            id=token_id
+        )
+
+        self.assertEqual(token_a1.get('id'), token_id)
+        self.assertEqual(token_a1.get('status'), Smartpay.TOKEN_STATUS_ACTIVE)
+
+        order_payload = {
+            "token": token_id,
+            "amount": 350,
+            "currency": 'JPY',
+
+            "items": [
+                {
+                    "name": 'レブロン 18 LOW',
+                    "amount": 250,
+                    "currency": 'JPY',
+                    "quantity": 1,
+                },
+            ],
+
+            "shippingInfo": {
+                "address": {
+                    "line1": 'line1',
+                    "locality": 'locality',
+                    "postalCode": '123',
+                    "country": 'JP',
+                },
+
+                "feeAmount": 100,
+                "feeCurrency": 'JPY',
+            },
+
+            "customerInfo": {
+                "email": 'john@smartpay.co',
+                "firstName": 'John',
+                "lastName": 'Doe',
+            },
+
+            "captureMethod": 'manual',
+
+            "reference": 'order_ref_1234567',
+        }
+
+        order = smartpay.create_order(order_payload)
+
+        self.assertTrue(order.get('id'))
+        self.assertEqual(order.get('tokenId'), token_id)
+
+        smartpay.disable_token(token_id)
+
+        token_a2 = smartpay.get_token(
+            id=token_id
+        )
+
+        self.assertEqual(token_a2.get('id'), token_id)
+        self.assertEqual(token_a2.get('status'),
+                         Smartpay.TOKEN_STATUS_DISABLED)
+
+        smartpay.enable_token(token_id)
+
+        token_a3 = smartpay.get_token(
+            id=token_id
+        )
+
+        self.assertEqual(token_a3.get('id'), token_id)
+        self.assertEqual(token_a3.get('status'), Smartpay.TOKEN_STATUS_ACTIVE)
+
+        try:
+            smartpay.delete_token(token_id)
+            token_a4 = smartpay.get_token(
+                id=token_id
+            )
+            print(token_a4)
+            self.assertTrue(False)
+        except Exception as e:
+            self.assertTrue(str(e).find('"errorCode":"token.not-found"') >= 0)

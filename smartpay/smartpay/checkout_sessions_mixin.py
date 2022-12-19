@@ -1,7 +1,7 @@
 from urllib.parse import urlencode
 
-from ..utils import valid_checkout_id
-from ..utils import validate_checkout_session_payload, normalize_checkout_session_payload
+from ..utils import valid_checkout_id, normalize_flat_checkout_session_payload
+from ..utils import validate_flat_checkout_session_payload, validate_token_checkout_session_payload
 
 from .base import GET, POST
 
@@ -14,6 +14,8 @@ ADDRESS_TYPE_STORE = 'store'
 CAPTURE_METHOD_AUTOMATIC = 'autommatic'
 CAPTURE_METHOD_MANUAL = 'manual'
 
+MODE_TOKEN = 'token'
+
 
 class CheckoutSessionsMixin:
     ADDRESS_TYPE_HOME = ADDRESS_TYPE_HOME
@@ -25,17 +27,46 @@ class CheckoutSessionsMixin:
     CAPTURE_METHOD_AUTOMATIC = CAPTURE_METHOD_AUTOMATIC
     CAPTURE_METHOD_MANUAL = CAPTURE_METHOD_MANUAL
 
-    def normalize_checkout_session_payload(self, payload):
-        normalize_payload = normalize_checkout_session_payload(payload)
-        errors = validate_checkout_session_payload(normalize_payload)
+    MODE_TOKEN = MODE_TOKEN
+
+    def normalize_flat_checkout_session_payload(self, payload):
+        if not payload:
+            raise Exception('Payload is required.')
+
+        normalize_payload = normalize_flat_checkout_session_payload(payload)
+        errors = validate_flat_checkout_session_payload(normalize_payload)
 
         if len(errors) > 0:
             raise Exception(errors)
 
         return normalize_payload
 
-    def create_checkout_session(self, payload):
-        normalized_payload = self.normalize_checkout_session_payload(payload)
+    def normalize_token_checkout_session_payload(self, payload):
+        if not payload:
+            raise Exception('Payload is required.')
+
+        errors = validate_token_checkout_session_payload(payload)
+
+        if len(errors) > 0:
+            raise Exception(errors)
+
+        return payload
+
+    def normalize_checkout_session_payload(self, payload):
+        if not payload:
+            raise Exception('Payload is required.')
+
+        if payload.get('mode', None) == self.MODE_TOKEN:
+            return self.normalize_token_checkout_session_payload(payload)
+
+        return self.normalize_flat_checkout_session_payload(payload)
+
+    def create_flat_checkout_session(self, payload):
+        if not payload:
+            raise Exception('Payload is required.')
+
+        normalized_payload = self.normalize_flat_checkout_session_payload(
+            payload)
 
         session = self.request(
             '/checkout-sessions', POST,  payload=normalized_payload)
@@ -48,6 +79,27 @@ class CheckoutSessionsMixin:
             pass
 
         return session
+
+    def create_token_checkout_session(self, payload):
+        if not payload:
+            raise Exception('Payload is required.')
+
+        normalized_payload = self.normalize_token_checkout_session_payload(
+            payload)
+
+        session = self.request(
+            '/checkout-sessions', POST,  payload=normalized_payload)
+
+        return session
+
+    def create_checkout_session(self, payload):
+        if not payload:
+            raise Exception('Payload is required.')
+
+        if payload.get('mode', None) == self.MODE_TOKEN:
+            return self.create_token_checkout_session(payload)
+
+        return self.create_flat_checkout_session(payload)
 
     def get_checkout_session(self, id=None, expand=None):
         if not id:

@@ -7,7 +7,9 @@ import requests
 from requests.adapters import HTTPAdapter, Retry
 
 from .payload import normalize_checkout_session_payload as from_loose_checkout_session_payload
-from .schemas.simple_checkout_session_payload import simple_checkout_session_payload_schema
+from .schemas.flat_checkout_session_payload import flat_checkout_session_payload_schema
+from .schemas.token_checkout_session_payload import token_checkout_session_payload_schema
+from .schemas.token_order_payload import token_order_payload_schema
 
 public_key_pattern = re.compile("^pk_(test|live)_[0-9a-zA-Z]+$")
 secret_key_pattern = re.compile("^sk_(test|live)_[0-9a-zA-Z]+$")
@@ -21,6 +23,8 @@ coupon_id_pattern = re.compile(
     "^coupon_(test|live)_[0-9a-zA-Z]+$")
 promotion_code_id_pattern = re.compile(
     "^promotioncode_(test|live)_[0-9a-zA-Z]+$")
+token_id_pattern = re.compile(
+    "^paytok_(test|live)_[0-9a-zA-Z]+$")
 
 
 def valid_public_api_key(input):
@@ -59,12 +63,30 @@ def valid_promotion_code_id(input):
     return bool(promotion_code_id_pattern.match(input))
 
 
-def validate_checkout_session_payload(payload):
+def valid_token_id(input):
+    return bool(token_id_pattern.match(input))
+
+
+def validate_flat_checkout_session_payload(payload):
     errors = jtd.validate(
-        schema=simple_checkout_session_payload_schema, instance=remove_none(payload))
+        schema=flat_checkout_session_payload_schema, instance=remove_none(payload))
 
     if len(payload['items']) == 0:
         errors.append('payload.items is required.')
+
+    return errors
+
+
+def validate_token_checkout_session_payload(payload):
+    errors = jtd.validate(
+        schema=token_checkout_session_payload_schema, instance=remove_none(payload))
+
+    return errors
+
+
+def validate_token_order_payload(payload):
+    errors = jtd.validate(
+        schema=token_order_payload_schema, instance=remove_none(payload))
 
     return errors
 
@@ -81,7 +103,7 @@ def get_currency(payload):
     return currency
 
 
-def normalize_checkout_session_payload(input):
+def normalize_flat_checkout_session_payload(input):
     payload = from_loose_checkout_session_payload(dict(input))
     shipping_info = payload.get('shippingInfo', {})
     currency = get_currency(payload)
