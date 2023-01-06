@@ -169,11 +169,7 @@ def nonce():
     return ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(15))
 
 
-def retry_requests():
-    retries = 1
-    backoff_factor = 1,
-    status_forcelist = [500, 501, 502, 503, 504],
-
+def retry_requests(retries=1, backoff_factor=1, status_forcelist=[500, 501, 502, 503, 504]):
     session = requests.Session()
     retry = Retry(
         total=retries,
