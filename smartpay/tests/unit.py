@@ -3,7 +3,6 @@ import unittest
 from smartpay import Smartpay
 
 API_PREFIX = 'https://api.smartpay.co/checkout'
-CHECKOUT_URL = 'https://checkout.smartpay.co'
 
 TEST_SECRET_KEY = 'sk_test_albwlejgsekcokfpdmva'
 TEST_PUBLIC_KEY = 'pk_test_albwlejgsekcokfpdmva'
@@ -19,7 +18,7 @@ FAKE_SESSION = {
 class TestBasic(unittest.TestCase):
     def test_payload_normalize(self):
         smartpay = Smartpay(
-            TEST_SECRET_KEY, public_key=TEST_PUBLIC_KEY, checkout_url=CHECKOUT_URL)
+            TEST_SECRET_KEY, public_key=TEST_PUBLIC_KEY)
 
         CODE1 = 'ABCDE12345'
 
@@ -56,7 +55,7 @@ class TestBasic(unittest.TestCase):
 
     def test_get_session_url(self):
         smartpay = Smartpay(
-            TEST_SECRET_KEY, public_key=TEST_PUBLIC_KEY, checkout_url=CHECKOUT_URL)
+            TEST_SECRET_KEY, public_key=TEST_PUBLIC_KEY)
 
         session_url = smartpay.get_session_url(FAKE_SESSION,
                                                promotion_code=CODE)
@@ -68,7 +67,7 @@ class TestBasic(unittest.TestCase):
 
     def test_verify_webhook_signature(self):
         smartpay = Smartpay(
-            TEST_SECRET_KEY, public_key=TEST_PUBLIC_KEY, checkout_url=CHECKOUT_URL)
+            TEST_SECRET_KEY, public_key=TEST_PUBLIC_KEY)
 
         data = '1653028612220.{"id":"evt_test_dwPfFKu5iSEKyHR2LFj9Lx","object":"event","createdAt":1653028523052,"test":true,"eventData":{"type":"payment.created","version":"2022-02-18","data":{"id":"payment_test_35LxgmF5KM22XKG38BjpJg","object":"payment","test":true,"createdAt":1653028523020,"updatedAt":1653028523020,"amount":200,"currency":"JPY","order":"order_test_RiYq2rthzRHrkKVGeucSwn","reference":"order_ref_1234567","status":"processed","metadata":{}}}}'
         secret = 'gybcsjixKyBW2d4z6iNPlaYzHUMtawnodwZt3W0q'
