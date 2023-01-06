@@ -10,7 +10,7 @@ class CouponsMixin:
     COUPON_DISCOUNT_TYPE_AMOUNT = COUPON_DISCOUNT_TYPE_AMOUNT
     COUPON_DISCOUNT_TYPE_PERCENTAGE = COUPON_DISCOUNT_TYPE_PERCENTAGE
 
-    def create_coupon(self, name=None, currency=None, description=None, discount_amount=None, discount_percentage=None, discount_type=None, expires_at=None, max_redemption_count=None, metadata=None):
+    def create_coupon(self, name=None, currency=None, description=None, discount_amount=None, discount_percentage=None, discount_type=None, expires_at=None, max_redemption_count=None, metadata=None, idempotency_key=None):
         if not name:
             raise Exception('name is required.')
 
@@ -44,7 +44,7 @@ class CouponsMixin:
             'metadata': metadata,
         }
 
-        return self.request('/coupons', POST, payload=payload)
+        return self.request('/coupons', POST, payload=payload, idempotency_key=idempotency_key)
 
     def get_coupon(self, id=None, expand=None):
         if not id:
@@ -59,7 +59,7 @@ class CouponsMixin:
 
         return self.request('/coupons/%s' % id, GET, params)
 
-    def update_coupon(self, id=None, active=None, name=None, description=None, metadata=None):
+    def update_coupon(self, id=None, active=None, name=None, description=None, metadata=None, idempotency_key=None):
         if not id:
             raise Exception('Coupon Id is required.')
 
@@ -73,7 +73,7 @@ class CouponsMixin:
             'metadata': metadata,
         }
 
-        return self.request('/coupons/%s' % id, PATCH, payload={k: v for k, v in payload.items() if v is not None})
+        return self.request('/coupons/%s' % id, PATCH, payload={k: v for k, v in payload.items() if v is not None}, idempotency_key=idempotency_key)
 
     def list_coupons(self, page_token=None, max_results=None, expand=None):
         params = {

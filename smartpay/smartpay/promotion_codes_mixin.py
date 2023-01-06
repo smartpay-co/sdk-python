@@ -4,7 +4,7 @@ from .base import GET, POST, PATCH
 
 
 class PromotionCodesMixin:
-    def create_promotion_code(self, coupon=None, code=None, active=None, currency=None, expires_at=None, first_time_transaction=None, one_per_customer=None, max_redemption_count=None, minimum_amount=None, metadata=None):
+    def create_promotion_code(self, coupon=None, code=None, active=None, currency=None, expires_at=None, first_time_transaction=None, one_per_customer=None, max_redemption_count=None, minimum_amount=None, metadata=None, idempotency_key=None):
         if not code:
             raise Exception('Code is required.')
 
@@ -31,7 +31,7 @@ class PromotionCodesMixin:
             'metadata': metadata,
         }
 
-        return self.request('/promotion-codes', POST, payload=payload)
+        return self.request('/promotion-codes', POST, payload=payload, idempotency_key=idempotency_key)
 
     def get_promotion_code(self, id=None, expand=None):
         if not id:
@@ -46,7 +46,7 @@ class PromotionCodesMixin:
 
         return self.request('/promotion-codes/%s' % id, GET, params)
 
-    def update_promotion_code(self, id=None, active=None, metadata=None):
+    def update_promotion_code(self, id=None, active=None, metadata=None, idempotency_key=None):
         if not id:
             raise Exception('Promotion Code Id is required.')
 
@@ -58,7 +58,7 @@ class PromotionCodesMixin:
             'metadata': metadata,
         }
 
-        return self.request('/promotion-codes/%s' % id, PATCH, payload={k: v for k, v in payload.items() if v is not None})
+        return self.request('/promotion-codes/%s' % id, PATCH, payload={k: v for k, v in payload.items() if v is not None}, idempotency_key=idempotency_key)
 
     def list_promotion_codes(self, page_token=None, max_results=None, expand=None):
         params = {

@@ -23,32 +23,32 @@ class TokensMixin:
 
         return self.request('/tokens/%s' % id, GET)
 
-    def enable_token(self, id=None):
+    def enable_token(self, id=None, idempotency_key=None):
         if not id:
             raise Exception('Token Id is required.')
 
         if not valid_token_id(id):
             raise Exception('Token Id is invalid.')
 
-        return self.request('/tokens/%s/enable' % id, PUT)
+        return self.request('/tokens/%s/enable' % id, PUT, idempotency_key=idempotency_key)
 
-    def disable_token(self, id=None):
+    def disable_token(self, id=None, idempotency_key=None):
         if not id:
             raise Exception('Token Id is required.')
 
         if not valid_token_id(id):
             raise Exception('Token Id is invalid.')
 
-        return self.request('/tokens/%s/disable' % id, PUT)
+        return self.request('/tokens/%s/disable' % id, PUT, idempotency_key=idempotency_key)
 
-    def delete_token(self, id=None):
+    def delete_token(self, id=None, idempotency_key=None):
         if not id:
             raise Exception('Token Id is required.')
 
         if not valid_token_id(id):
             raise Exception('Token Id is invalid.')
 
-        return self.request('/tokens/%s' % id, DELETE)
+        return self.request('/tokens/%s' % id, DELETE, idempotency_key=idempotency_key)
 
     def list_tokens(self, page_token=None, max_results=None, expand=None):
         params = {
