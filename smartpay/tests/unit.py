@@ -6,6 +6,7 @@ API_PREFIX = 'https://api.smartpay.co/checkout'
 
 TEST_SECRET_KEY = 'sk_test_albwlejgsekcokfpdmva'
 TEST_PUBLIC_KEY = 'pk_test_albwlejgsekcokfpdmva'
+CHECKOUT_URL = 'https://checkout.smartpay.co'
 
 CODE = "FOO"
 
