@@ -19,10 +19,14 @@ API_PREFIX = 'https://api.smartpay.co/v1'
 api_prefix_candidate = os.environ.get('SMARTPAY_API_PREFIX', None)
 
 SMARTPAY_API_PREFIX = api_prefix_candidate if api_prefix_candidate and 'api.smartpay' in api_prefix_candidate else None
+SMARTPAY_SECRET_KEY = os.environ.get('SMARTPAY_SECRET_KEY', None)
+SMARTPAY_PUBLIC_KEY = os.environ.get('SMARTPAY_PUBLIC_KEY', None)
 
 
 class Smartpay(CheckoutSessionsMixin, OrdersMixin, PaymentsMixin, RefundsMixin, WebhookEndpointsMixin, CouponsMixin, PromotionCodesMixin, TokensMixin):
-    def __init__(self, secret_key, public_key=None, api_prefix=None, checkout_url=None):
+    def __init__(self, custome_secret_key, public_key=None, api_prefix=None, retries=1):
+        secret_key = custome_secret_key or SMARTPAY_SECRET_KEY
+
         if not secret_key:
             raise Exception('Secret Key is required.')
 
@@ -33,9 +37,9 @@ class Smartpay(CheckoutSessionsMixin, OrdersMixin, PaymentsMixin, RefundsMixin, 
             raise Exception('Public Key is invalid.')
 
         self._secret_key = secret_key
-        self._public_key = public_key
+        self._public_key = public_key or SMARTPAY_PUBLIC_KEY
         self._api_prefix = api_prefix or SMARTPAY_API_PREFIX or API_PREFIX
-        self.requests_session = retry_requests()
+        self.requests_session = retry_requests(retries=retries)
 
     def request(self, endpoint, method='GET', params={}, payload=None, idempotency_key=None):
         params['dev-lang'] = 'python'

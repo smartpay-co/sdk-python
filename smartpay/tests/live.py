@@ -5,7 +5,7 @@ import requests
 import unittest
 import warnings
 
-from smartpay import Smartpay
+from ..smartpay import Smartpay
 
 unittest.TestLoader.sortTestMethodsUsing = None
 

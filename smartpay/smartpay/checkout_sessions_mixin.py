@@ -61,7 +61,7 @@ class CheckoutSessionsMixin:
 
         return self.normalize_flat_checkout_session_payload(payload)
 
-    def create_flat_checkout_session(self, payload):
+    def create_flat_checkout_session(self, payload, idempotency_key=None):
         if not payload:
             raise Exception('Payload is required.')
 
@@ -69,7 +69,7 @@ class CheckoutSessionsMixin:
             payload)
 
         session = self.request(
-            '/checkout-sessions', POST,  payload=normalized_payload)
+            '/checkout-sessions', POST,  payload=normalized_payload, idempotency_key=idempotency_key)
 
         try:
             session['url'] = self.get_session_url(session, {
@@ -80,7 +80,7 @@ class CheckoutSessionsMixin:
 
         return session
 
-    def create_token_checkout_session(self, payload):
+    def create_token_checkout_session(self, payload, idempotency_key=None):
         if not payload:
             raise Exception('Payload is required.')
 
@@ -88,18 +88,18 @@ class CheckoutSessionsMixin:
             payload)
 
         session = self.request(
-            '/checkout-sessions', POST,  payload=normalized_payload)
+            '/checkout-sessions', POST,  payload=normalized_payload, idempotency_key=idempotency_key)
 
         return session
 
-    def create_checkout_session(self, payload):
+    def create_checkout_session(self, payload, idempotency_key=None):
         if not payload:
             raise Exception('Payload is required.')
 
         if payload.get('mode', None) == self.MODE_TOKEN:
-            return self.create_token_checkout_session(payload)
+            return self.create_token_checkout_session(payload, idempotency_key=idempotency_key)
 
-        return self.create_flat_checkout_session(payload)
+        return self.create_flat_checkout_session(payload, idempotency_key=idempotency_key)
 
     def get_checkout_session(self, id=None, expand=None):
         if not id:
