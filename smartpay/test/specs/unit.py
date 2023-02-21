@@ -1,8 +1,8 @@
 import unittest
 
-from ..smartpay import Smartpay
+from ...smartpay import Smartpay
 
-from .utils.mock_retry_server import Mock_retry_server
+from ..utils.mock_retry_server import Mock_retry_server
 
 API_PREFIX = 'https://api.smartpay.co/checkout'
 
