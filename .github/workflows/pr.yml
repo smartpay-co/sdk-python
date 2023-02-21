@@ -28,4 +28,4 @@ jobs:
         run: python -m pip install -r requirements-test.txt
 
       - name: Run Unit Test
-        run: python -m unittest smartpay/tests/unit.py
+        run: python -m unittest smartpay/test/specs/unit.py
