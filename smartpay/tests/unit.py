@@ -1,6 +1,8 @@
 import unittest
 
-from smartpay import Smartpay
+from ..smartpay import Smartpay
+
+from .utils.mock_retry_server import mock_retry_server
 
 API_PREFIX = 'https://api.smartpay.co/checkout'
 
@@ -52,7 +54,7 @@ class TestBasic(unittest.TestCase):
 
         normalizePayload = smartpay.normalize_checkout_session_payload(payload)
 
-        self.assertTrue(normalizePayload.get('amount') == 200)
+        self.assertEqual(normalizePayload.get('amount'), 200)
 
     def test_get_session_url(self):
         smartpay = Smartpay(
@@ -76,3 +78,25 @@ class TestBasic(unittest.TestCase):
 
         self.assertTrue(smartpay.verify_webhook_signature(
             data=data, secret=secret, signature=signature))
+
+    def test_retry_policy(self):
+
+        mock_retry_server.init()
+
+        smartpay1 = Smartpay(
+            TEST_SECRET_KEY, public_key=TEST_PUBLIC_KEY, api_prefix='http://127.0.0.1:3001', retries=5)
+
+        res1= smartpay1.request('/')
+
+        self.assertEqual(res1, 'ok')
+
+        smartpay2 = Smartpay(
+            TEST_SECRET_KEY, public_key=TEST_PUBLIC_KEY, api_prefix='http://127.0.0.1:3001', retries=1)
+        
+        try:
+            smartpay2.request('/')
+            self.assertTrue(False)
+        except:
+            self.assertTrue(True)
+
+        mock_retry_server.close()
