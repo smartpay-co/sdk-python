@@ -2,7 +2,7 @@ import unittest
 
 from ..smartpay import Smartpay
 
-from .utils.mock_retry_server import mock_retry_server
+from .utils.mock_retry_server import Mock_retry_server
 
 API_PREFIX = 'https://api.smartpay.co/checkout'
 
@@ -81,12 +81,13 @@ class TestBasic(unittest.TestCase):
 
     def test_retry_policy(self):
 
-        mock_retry_server.init()
+        retry_server = Mock_retry_server()
+        retry_server.init()
 
         smartpay1 = Smartpay(
             TEST_SECRET_KEY, public_key=TEST_PUBLIC_KEY, api_prefix='http://127.0.0.1:3001', retries=5)
 
-        res1= smartpay1.request('/')
+        res1 = smartpay1.request('/')
 
         self.assertEqual(res1, 'ok')
 
@@ -99,4 +100,3 @@ class TestBasic(unittest.TestCase):
         except:
             self.assertTrue(True)
 
-        mock_retry_server.close()

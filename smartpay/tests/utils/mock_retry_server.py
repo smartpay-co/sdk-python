@@ -1,6 +1,5 @@
 from flask import Flask, request
 import threading
-import requests
 
 app = Flask(__name__)
 port = 3001
@@ -19,21 +18,15 @@ def hello_world():
 
     return "", 500
 
-@app.post('/seriouslykill')
-def seriouslykill():
-    func = request.environ.get('werkzeug.server.shutdown')
+class Mock_retry_server:
+    def __init__(self):
+        self.thread = None
+        return
     
-    if func is None:
-        raise RuntimeError('Not running with the Werkzeug Server')
-    
-    func()
+    def init(self):
+        if self.thread:
+            return
 
-    return "Shutting down..."
-
-class mock_retry_server:
-    def init():
-        threading.Thread(target=lambda: app.run(host='0.0.0.0', port=port, debug=True, use_reloader=False)).start()
-        # app.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
-
-    def close():
-        requests.post('http://127.0.0.1:%s/seriouslykill' % (port, ))
+        self.thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=port, debug=True, use_reloader=False))
+        self.thread.setDaemon(True)
+        self.thread.start()
