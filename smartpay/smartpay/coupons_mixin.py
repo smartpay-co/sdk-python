@@ -10,27 +10,41 @@ class CouponsMixin:
     COUPON_DISCOUNT_TYPE_AMOUNT = COUPON_DISCOUNT_TYPE_AMOUNT
     COUPON_DISCOUNT_TYPE_PERCENTAGE = COUPON_DISCOUNT_TYPE_PERCENTAGE
 
-    def create_coupon(self, name=None, currency=None, description=None, discount_amount=None, discount_percentage=None, discount_type=None, expires_at=None, max_redemption_count=None, metadata=None, idempotency_key=None):
+    def create_coupon(
+        self,
+        name=None,
+        currency=None,
+        description=None,
+        discount_amount=None,
+        discount_percentage=None,
+        discount_type=None,
+        expires_at=None,
+        max_redemption_count=None,
+        metadata=None,
+        idempotency_key=None,
+    ):
         if not name:
             raise Exception('name is required.')
 
         if not discount_type:
             raise Exception('discount_type is required.')
 
-        if discount_type != COUPON_DISCOUNT_TYPE_AMOUNT and discount_type != COUPON_DISCOUNT_TYPE_PERCENTAGE:
+        if (
+            discount_type != COUPON_DISCOUNT_TYPE_AMOUNT
+            and discount_type != COUPON_DISCOUNT_TYPE_PERCENTAGE
+        ):
             raise Exception('discount_type is invalid.')
 
         if discount_type == COUPON_DISCOUNT_TYPE_AMOUNT and not discount_amount:
-            raise Exception(
-                'discount_amount is required if discount_type is amount.')
+            raise Exception('discount_amount is required if discount_type is amount.')
 
         if discount_type == COUPON_DISCOUNT_TYPE_AMOUNT and not currency:
-            raise Exception(
-                'currency is required if discount_amount is provided.')
+            raise Exception('currency is required if discount_amount is provided.')
 
         if discount_type == COUPON_DISCOUNT_TYPE_PERCENTAGE and not discount_percentage:
             raise Exception(
-                'discount_percentage is required if discount_type is percentage.')
+                'discount_percentage is required if discount_type is percentage.'
+            )
 
         payload = {
             'name': name,
@@ -44,7 +58,9 @@ class CouponsMixin:
             'metadata': metadata,
         }
 
-        return self.request('/coupons', POST, payload=payload, idempotency_key=idempotency_key)
+        return self.request(
+            '/coupons', POST, payload=payload, idempotency_key=idempotency_key
+        )
 
     def get_coupon(self, id=None, expand=None):
         if not id:
@@ -59,7 +75,15 @@ class CouponsMixin:
 
         return self.request('/coupons/%s' % id, GET, params)
 
-    def update_coupon(self, id=None, active=None, name=None, description=None, metadata=None, idempotency_key=None):
+    def update_coupon(
+        self,
+        id=None,
+        active=None,
+        name=None,
+        description=None,
+        metadata=None,
+        idempotency_key=None,
+    ):
         if not id:
             raise Exception('Coupon Id is required.')
 
@@ -73,7 +97,12 @@ class CouponsMixin:
             'metadata': metadata,
         }
 
-        return self.request('/coupons/%s' % id, PATCH, payload={k: v for k, v in payload.items() if v is not None}, idempotency_key=idempotency_key)
+        return self.request(
+            '/coupons/%s' % id,
+            PATCH,
+            payload={k: v for k, v in payload.items() if v is not None},
+            idempotency_key=idempotency_key,
+        )
 
     def list_coupons(self, page_token=None, max_results=None, expand=None):
         params = {

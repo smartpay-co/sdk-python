@@ -25,11 +25,11 @@ class OrdersMixin:
         if not payload:
             raise Exception('Payload is required.')
 
-        normalized_payload = self.normalize_order_payload(
-            payload)
+        normalized_payload = self.normalize_order_payload(payload)
 
         order = self.request(
-            '/orders', POST,  payload=normalized_payload, idempotency_key=idempotency_key)
+            '/orders', POST, payload=normalized_payload, idempotency_key=idempotency_key
+        )
 
         return order
 
@@ -53,7 +53,9 @@ class OrdersMixin:
         if not valid_order_id(id):
             raise Exception('Order ID is invalid.')
 
-        return self.request('/orders/%s/cancellation' % id, PUT, idempotency_key=idempotency_key)
+        return self.request(
+            '/orders/%s/cancellation' % id, PUT, idempotency_key=idempotency_key
+        )
 
     def list_orders(self, page_token=None, max_results=None, expand=None):
         params = {
