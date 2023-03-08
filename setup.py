@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
 meta = {}
-with open(os.path.join(ROOT, "smartpay", "version.py"), encoding="utf-8") as f:
+with open(os.path.join(ROOT, "smartpay", "__version__.py"), encoding="utf-8") as f:
     exec(f.read(), meta)
 
 setup(
@@ -23,8 +23,10 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
+        "Operating System :: OS Independent",
+        "Intended Audience :: Developers",
     ],
     packages=["smartpay", "smartpay.schemas"],
     package_data={'': ['*.json']},
-    install_requires=["jtd==0.1.1", "requests==2.25.1"],
+    install_requires=["jtd==0.1.1", "requests==2.25.1", "pybase62==0.4.3"],
 )

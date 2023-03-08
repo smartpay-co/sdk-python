@@ -30,7 +30,9 @@ class TokensMixin:
         if not valid_token_id(id):
             raise Exception('Token Id is invalid.')
 
-        return self.request('/tokens/%s/enable' % id, PUT, idempotency_key=idempotency_key)
+        return self.request(
+            '/tokens/%s/enable' % id, PUT, idempotency_key=idempotency_key
+        )
 
     def disable_token(self, id=None, idempotency_key=None):
         if not id:
@@ -39,7 +41,9 @@ class TokensMixin:
         if not valid_token_id(id):
             raise Exception('Token Id is invalid.')
 
-        return self.request('/tokens/%s/disable' % id, PUT, idempotency_key=idempotency_key)
+        return self.request(
+            '/tokens/%s/disable' % id, PUT, idempotency_key=idempotency_key
+        )
 
     def delete_token(self, id=None, idempotency_key=None):
         if not id:

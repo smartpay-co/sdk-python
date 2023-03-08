@@ -7,7 +7,18 @@ class RefundsMixin:
     REJECT_REQUEST_BY_CUSTOMER = 'requested_by_customer'
     REJECT_FRAUDULENT = 'fraudulent'
 
-    def create_refund(self, payment=None, amount=None, currency=None, reason=None, reference=None, description=None, metadata=None, idempotency_key=None):
+    def create_refund(
+        self,
+        payment=None,
+        amount=None,
+        currency=None,
+        reason=None,
+        reference=None,
+        description=None,
+        line_items=None,
+        metadata=None,
+        idempotency_key=None,
+    ):
         if not payment:
             raise Exception('Payment Id is required.')
 
@@ -30,10 +41,13 @@ class RefundsMixin:
             'reason': reason,
             'reference': reference,
             'description': description,
+            'lineItems': line_items,
             'metadata': metadata,
         }
 
-        return self.request('/refunds', POST, payload=payload, idempotency_key=idempotency_key)
+        return self.request(
+            '/refunds', POST, payload=payload, idempotency_key=idempotency_key
+        )
 
     def refund(self, **kwargs):
         return self.create_refund(**kwargs)
@@ -51,7 +65,14 @@ class RefundsMixin:
 
         return self.request('/refunds/%s' % id, GET, params)
 
-    def update_refund(self, id=None, reference=None, description=None, metadata=None, idempotency_key=None):
+    def update_refund(
+        self,
+        id=None,
+        reference=None,
+        description=None,
+        metadata=None,
+        idempotency_key=None,
+    ):
         if not id:
             raise Exception('Refund Id is required.')
 
@@ -64,7 +85,12 @@ class RefundsMixin:
             'metadata': metadata,
         }
 
-        return self.request('/refunds/%s' % id, PATCH, payload={k: v for k, v in payload.items() if v is not None}, idempotency_key=idempotency_key)
+        return self.request(
+            '/refunds/%s' % id,
+            PATCH,
+            payload={k: v for k, v in payload.items() if v is not None},
+            idempotency_key=idempotency_key,
+        )
 
     def list_refunds(self, page_token=None, max_results=None, expand=None):
         params = {

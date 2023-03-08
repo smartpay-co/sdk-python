@@ -12,43 +12,64 @@ from .tokens_mixin import TokensMixin
 from ..utils import valid_public_api_key, valid_secret_api_key
 from ..utils import retry_requests, nonce
 
-from ..version import __version__
+from ..__version__ import __version__
 
 API_PREFIX = 'https://api.smartpay.co/v1'
 
 api_prefix_candidate = os.environ.get('SMARTPAY_API_PREFIX', None)
 
-SMARTPAY_API_PREFIX = api_prefix_candidate if api_prefix_candidate and 'api.smartpay' in api_prefix_candidate else None
+SMARTPAY_API_PREFIX = (
+    api_prefix_candidate
+    if api_prefix_candidate and 'api.smartpay' in api_prefix_candidate
+    else None
+)
 SMARTPAY_SECRET_KEY = os.environ.get('SMARTPAY_SECRET_KEY', None)
 SMARTPAY_PUBLIC_KEY = os.environ.get('SMARTPAY_PUBLIC_KEY', None)
 
 
-class Smartpay(CheckoutSessionsMixin, OrdersMixin, PaymentsMixin, RefundsMixin, WebhookEndpointsMixin, CouponsMixin, PromotionCodesMixin, TokensMixin):
-    def __init__(self, custome_secret_key, public_key=None, api_prefix=None, retries=1):
-        secret_key = custome_secret_key or SMARTPAY_SECRET_KEY
+class Smartpay(
+    CheckoutSessionsMixin,
+    OrdersMixin,
+    PaymentsMixin,
+    RefundsMixin,
+    WebhookEndpointsMixin,
+    CouponsMixin,
+    PromotionCodesMixin,
+    TokensMixin,
+):
+    def __init__(self, secret_key, public_key=None, api_prefix=None, retries=1):
+        input_secret_key = secret_key or SMARTPAY_SECRET_KEY
 
         if not secret_key:
             raise Exception('Secret Key is required.')
 
-        if not valid_secret_api_key(secret_key):
+        if not valid_secret_api_key(input_secret_key):
             raise Exception('Secret Key is invalid.')
 
         if public_key and not valid_public_api_key(public_key):
             raise Exception('Public Key is invalid.')
 
-        self._secret_key = secret_key
+        self._secret_key = input_secret_key
         self._public_key = public_key or SMARTPAY_PUBLIC_KEY
         self._api_prefix = api_prefix or SMARTPAY_API_PREFIX or API_PREFIX
         self.requests_session = retry_requests(retries=retries)
 
-    def request(self, endpoint, method='GET', params={}, payload=None, idempotency_key=None):
+    def request(
+        self, endpoint, method='GET', params={}, payload=None, idempotency_key=None
+    ):
         params['dev-lang'] = 'python'
         params['sdk-version'] = __version__
 
-        r = self.requests_session.request(method, '%s%s' % (self._api_prefix, endpoint), headers={
-            'Authorization': 'Basic %s' % (self._secret_key,),
-            'Idempotency-Key': idempotency_key or nonce(),
-        }, params=params, json=payload)
+        r = self.requests_session.request(
+            method,
+            '%s%s' % (self._api_prefix, endpoint),
+            headers={
+                'Authorization': 'Basic %s' % (self._secret_key,),
+                'Idempotency-Key': idempotency_key or nonce(),
+            },
+            params=params,
+            json=payload,
+        )
 
         if r.status_code < 200 or r.status_code > 299:
             raise Exception('%s: %s' % (r.status_code, r.text))

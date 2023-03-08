@@ -12,7 +12,18 @@ class PaymentsMixin:
     CANCEL_REMAINDER_AUTOMATIC = CANCEL_REMAINDER_AUTOMATIC
     CANCEL_REMAINDER_MANUAL = CANCEL_REMAINDER_MANUAL
 
-    def create_payment(self, order=None, amount=None, currency=None, cancel_remainder=None, reference=None, description=None, metadata=None, idempotency_key=None):
+    def create_payment(
+        self,
+        order=None,
+        amount=None,
+        currency=None,
+        cancel_remainder=None,
+        reference=None,
+        description=None,
+        line_items=None,
+        metadata=None,
+        idempotency_key=None,
+    ):
         if not order:
             raise Exception('Order Id is required.')
 
@@ -32,10 +43,13 @@ class PaymentsMixin:
             'cancelRemainder': cancel_remainder,
             'reference': reference,
             'description': description,
+            'lineItems': line_items,
             'metadata': metadata,
         }
 
-        return self.request('/payments', POST, payload=payload, idempotency_key=idempotency_key)
+        return self.request(
+            '/payments', POST, payload=payload, idempotency_key=idempotency_key
+        )
 
     def capture(self, **kwargs):
         return self.create_payment(**kwargs)
@@ -53,7 +67,14 @@ class PaymentsMixin:
 
         return self.request('/payments/%s' % id, GET, params)
 
-    def update_payment(self, id=None, reference=None, description=None, metadata=None, idempotency_key=None):
+    def update_payment(
+        self,
+        id=None,
+        reference=None,
+        description=None,
+        metadata=None,
+        idempotency_key=None,
+    ):
         if not id:
             raise Exception('Payment Id is required.')
 
@@ -66,7 +87,12 @@ class PaymentsMixin:
             'metadata': metadata,
         }
 
-        return self.request('/payments/%s' % id, PATCH, payload={k: v for k, v in payload.items() if v is not None}, idempotency_key=idempotency_key)
+        return self.request(
+            '/payments/%s' % id,
+            PATCH,
+            payload={k: v for k, v in payload.items() if v is not None},
+            idempotency_key=idempotency_key,
+        )
 
     def list_payments(self, page_token=None, max_results=None, expand=None):
         params = {
