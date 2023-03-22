@@ -7,6 +7,7 @@
   - [List Checkout Sessions](#list-checkout-sessions)
   - [Get Checkout Session URL](#get-checkout-session-url)
   - [Get Order](#get-order)
+  - [Create Order With Token](#create-order)
   - [Cancel Order](#cancel-order)
   - [List Orders](#list-orders)
   - [Create Payment](#create-payment)
@@ -17,6 +18,7 @@
   - [Get Refund](#get-refund)
   - [Update Refund](#update-refund)
   - [List Refunds](#list-refunds)
+  - [Create Webhook Endpoint](#create-webhook-endpoint)
   - [Get Webhook Endpoint](#get-webhook-endpoint)
   - [Update Webhook Endpoint](#update-webhook-endpoint)
   - [Delete Webhook Endpoint](#delete-webhook-endpoint)
@@ -24,9 +26,11 @@
   - [Calculate Webhook Signature](#calculate-webhook-signature)
   - [Verify Webhook Signature](#verify-webhook-signature)
   - [Webhook Express Middleware](#webhook-express-middleware)
+  - [Create Coupon](#create-coupon)
   - [Get Coupon](#get-coupon)
   - [Update Coupon](#update-coupon)
   - [List Coupons](#list-coupons)
+  - [Create Promotion Code](#create-promotion-code)
   - [Get Promotion Code](#get-promotion-code)
   - [Update Promotion Code](#update-promotion-code)
   - [List Promotion Codes](#list-promotion-codes)
@@ -191,6 +195,27 @@ order = smartpay.get_order(id=order_id)
 #### Exceptions
 
 [Common exceptions][]
+
+### Create Order
+
+Create an order using a token.
+
+```python
+smartpay.create_order(id=order_id)
+```
+
+#### Arguments
+
+| Name           | Type             | Description                |
+| -------------- | ---------------- | -------------------------- |
+| payload        | Array            | The [order payload][]      |
+| idempotencyKey | String, optional | The custom idempotency key |
+
+[order payload]: https://en.docs.smartpay.co/reference/create-order
+
+#### Return
+
+[Order object][]
 
 ### Cancel Order
 
@@ -387,7 +412,7 @@ refund = smartpay.create_refund(
 
 | Name                   | Type     | Description                                                                                              |
 | ---------------------- | -------- | -------------------------------------------------------------------------------------------------------- |
-| id                     | String   | The payment id                                                                                           |
+| payment                | String   | The payment id                                                                                           |
 | amount                 | Number   | The amount of the refund                                                                                 |
 | currency               | String   | The order id                                                                                             |
 | reason                 | Stirng   | The reason of the Refund. `requested_by_customer` or `fraudulent`                                        |
@@ -487,7 +512,7 @@ refunds = smartpay.list_refunds(
 
 [Collection][] of [refund object][]
 
-#### Create Webhook Endpoint
+### Create Webhook Endpoint
 
 Create a webhook endpoint object.
 
@@ -577,10 +602,10 @@ webhook_endpoint = smartpay.update_webhook_endpoint(
 
 ### Delete Webhook Endpoint
 
-Get the webhook endpoint object by webhook endpoint id.
+Delete the webhook endpoint by webhook endpoint id.
 
 ```python
-webhook_endpoint = smartpay.delete_webhook_endpoint(id=webhook_endpoint_id)
+smartpay.delete_webhook_endpoint(id=webhook_endpoint_id)
 ```
 
 #### Arguments
@@ -671,7 +696,7 @@ signature = smartpay.verify_webhook_signature(
 
 Boolean value, `true` if the signatures are matching.
 
-#### Create Coupon
+### Create Coupon
 
 create a coupon object.
 
@@ -749,7 +774,7 @@ coupon = smartpay.update_coupon(
 
 | Name                | Type    | Description                                                                          |
 | ------------------- | ------- | ------------------------------------------------------------------------------------ |
-| id                  | String  | The order id                                                                         |
+| id                  | String  | The coupon id                                                                        |
 | name (optional)     | String  | The coupon's name, meant to be displayable to the customer.                          |
 | active (optional)   | Boolean | Has the value true if the coupon is active and events are sent to the url specified. |
 | metadata (optional) | Object  | Set of up to 20 key-value pairs that you can attach to the object.                   |
@@ -790,7 +815,7 @@ coupons = smartpay.list_coupons(
 
 [Common exceptions][]
 
-#### Create Promotion Code
+### Create Promotion Code
 
 Create a promotion code object of a coupon.
 
